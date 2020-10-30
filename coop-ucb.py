@@ -78,6 +78,9 @@ def initialize():
     else:
         print("Error: Must press either 'M' or 'R'")
         exit()
+    if len(true_means) != NUM_ARMS:
+        print("Error. Must enter " + str(NUM_ARMS) + " means")
+        exit()
 
     print("Would you like to Manually [M] set the standard deviation or Randomly [R] generate"
           " the standard deviation? ")
