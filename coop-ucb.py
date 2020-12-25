@@ -48,12 +48,12 @@ def initialize():
     print("Would you like to Manually [M] or Randomly [R] generate a network graph of agents? ")
     graph_generation_method = input().capitalize()
     if graph_generation_method == "M":
-        print("?")
+        print("?") // TODO
     elif graph_generation_method == "R":
-        print("?")
+        print("?") // TODO
     else:
         print("Error: Must press either 'M' or 'R'")
-        exit()
+        exit() 
 
     print("Enter the number of arms: ")
     NUM_ARMS = int(input())
@@ -122,7 +122,7 @@ def initialize():
     if input() == "2":
         ucb2_flag = True
 
-    print("Enter a step size parameter in the range (0,1]. If none chosen,"
+    print("Enter a step size parameter in the range (0,1]. If none chosen (just press ENTER),"
           " default is d_max / (d_max - 1), where d_max is the degree of the node with the most edges")
     step_size = input()
     if step_size == "":
@@ -133,7 +133,7 @@ def initialize():
             print("Error: step size parameter must be in (0, 1]")
             exit()
 
-    print("Enter a gamma parameter greater than or equal to 1. If none chosen, default is 1")
+    print("Enter a gamma parameter greater than or equal to 1. If none chosen (just press ENTER), default is 1")
     gamma = input()
     if gamma == "":
         gamma = 1
