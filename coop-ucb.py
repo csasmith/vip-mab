@@ -1,44 +1,15 @@
-# Simulator for the coop-ucb and coop-ucb2 algorithms in Landgren's papers
+# Simulator for the coop-ucb2 algorithm in Landgren's papers
+# note: if running original coop-ucb, need eta parameter
+# 10.1109/ECC.2016.7810293 <--- doi for coop-ucb original paper
+# should provide a demo option!!
+# issue # 1: not distributed
+# issue # 2: what is gamma? Why is gamma = 1 in their simulation when paper says gamma > 1?
+# issue # 3: kappa should be in (0, 1], but kappa = d_max / (d_max - 1) ensures greater than 1
+# TODO: read more on gossip algorithms
 
 import random
 import networkx as nx
-
-print("Welcome to the coop-ucb simulator. The simulator runs the coop-ucb algorithm as described in "
-    "Landgren, Srivastava, and Leonard's papers: 10.1109/ECC.2016.7810293 and 10.1109/CDC.2016.7798264")
-print("Please take a moment to provide problem parameters. Parameters include: \n"
-    "- Agent network graph (manually or randomly generated)\n"
-    "- Number of arms\n"
-    "- Arm means (manually or randomly generated)\n"
-    "- Standard deviation (manually or randomly generated)\n"
-    "- Number of iterations\n"
-    "- coop-ucb vs coop-ucb2\n"
-    "- Step size parameter (optional)\n"
-    "- Gamma (optional)")
-
-# simulation parameters
-G = get_graph() # G
-true_means = get_arm_means() # m_i's
-std_dev = get_std_dev()  # sigma_s
-max_time_step = get_max_time_step()  # T
-step_size = get_step_size()  # kappa
-gamma = get_gamma() # all we know about this is supposed to be greater than 1 but they set to 1
-
-# other options
-ucb2_flag = get_coop_ucb_version() # coop-ucb2 easier (and better?)
-
-# globals derived from parameters
-num_agents = G.number_of_nodes() # N
-num_arms = len(true_means) # M
-
-# gather user input to initialize network and simulation settings.
-def initialize():
-
-    print("Done! Here are your settings:\n"
-          "Number of agents: " + str(NUM_AGENTS) + "\n" +
-          "Number of arms: " + str(NUM_ARMS) + "\n" +
-          "Arm means: " + str(true_means) + "\n" +
-          "Standard deviation: " + str(std_dev) + "\n" +
-          "coop-ucb2?: " + str(ucb2_flag))
+import numpy as np
 
 
 ''' 
@@ -63,13 +34,13 @@ def get_graph():
             print("Please enter the number of agents:")
             num_agents = int(input())
             print("Enter an edge pair like '1 2' on each line for " + str(num_agents) + " lines")
-            for i in range(num_agents):
+            for _ in range(num_agents):
                 edge_list.append(tuple(map(int, input().split())))
             g.add_edges_from(edge_list)
     elif graph_generation_method == "R":
         print("The random graph is generated as an erdos-renyi graph. Please enter the number of agents:")
         num_agents = int(input())
-        print("Please enter a probability (ie 0.5")
+        print("Please enter a probability (ie 0.5)")
         p = float(input())
         if p < 0 or p > 1:
             print("invalid probability")
@@ -164,36 +135,32 @@ def get_std_dev():
 
 '''
 Returns T, the number of iterations / time steps / "horizon length"
+T must be greater than the number of agents, because the initalization
+step of the coop-ucb algorithm(s) has each agent sample each arm once
 '''
-def get_max_time_step():
+def get_max_time_step(num_arms):
     print("Enter the number of iterations for the simulation: ")
     max_time_step = int(input())
-    if max_time_step <= 0:
-        print("Error: Must have at least one iteration")
+    if max_time_step < num_arms:
+        print("Error: Must have at least as many iterations as there are arms")
         return None
     return max_time_step
 
 
 '''
-Returns True if we want to run coop-ucb2, False otherwise
+Return step size parameter (kappa) in range (0, 1]. Default is 0.5.
+TODO: issue no.3: d_max / (d_max - 1) is greater than 1
 '''
-def get_coop_ucb_version():
-    print("Press [1] if you would like to run the original coop-ucb algorithm instead."
-        " Press any other key for coop-ucb2")
-    return input().strip() != "1"
-
-
-'''
-Return step size parameter (kappa) in range (0, 1]. Default is d_max / (d_max - 1), 
-where d_max is the degree of the node with the most edges
-TODO: calculate default
-'''
-def get_step_size():
+def get_step_size(G):
     print("Enter a step size parameter in the range (0,1]. If none chosen (just press ENTER),"
-          " default is d_max / (d_max - 1), where d_max is the degree of the node with the most edges")
+        " default is .5")
     step_size = input()
     if step_size == "":
-        step_size = 1  # TODO: calculate d_max
+        '''
+        d_max = max(list(G.degree), key = lambda x:x[1])[1]
+        step_size = d_max / (d_max - 1)
+        '''
+        step_size = 0.5
     else:
         step_size = float(step_size)
         if step_size <= 0 or step_size > 1:
@@ -218,3 +185,78 @@ def get_gamma():
             return None
 
     return gamma
+
+
+'''
+Returns True if we want to run coop-ucb2, False otherwise
+*** NOT USED YET - focusing on coop-ucb2
+'''
+def get_coop_ucb_version():
+    print("Press [1] if you would like to run the original coop-ucb algorithm instead."
+        " Press any other key for coop-ucb2")
+    return input().strip() != "1"
+
+
+'''
+Returns an instance of the distributed cooperative multi-armed bandit problem as specified by 
+Landgren et al., in a tuple of the form (G, Mu, sigma, T, kappa, gamma). G is the network graph of agents 
+(number of agents M is implicitly stored by G), Mu is a list of the true arm means (number of arms N is 
+implicitly stored in Mu), sigma is the standard deviation, T is the number of time steps, kappa is the 
+step size parameter, and gamma is some parameter I have yet to understand.
+'''
+def get_problem_instance():
+    print("Please take a moment to provide problem parameters. Parameters include: \n"
+    "- Agent network graph (manually or randomly generated)\n"
+    "- Number of arms\n"
+    "- Arm means (manually or randomly generated)\n"
+    "- Standard deviation (manually or randomly generated)\n"
+    "- Number of iterations\n"
+    # "- coop-ucb vs coop-ucb2\n" <-- going to focus on coop-ucb2
+    "- Step size parameter (default exists)\n"
+    "- Gamma (default exists)")
+
+    # get simulation parameters
+    G = get_graph() # G
+    true_means = get_arm_means() # Mu - list of m_i's
+    std_dev = get_std_dev()  # sigma
+    max_time_step = get_max_time_step(len(true_means))  # T
+    step_size = get_step_size(G)  # kappa
+    gamma = get_gamma() # all we know about this is supposed to be greater than 1 but they set to 1
+
+    A = nx.adjacency_matrix(G).todense() # for printing purposes
+    print("Here's what we got:\n"
+    "Network Graph:\n\n " + str(A) + "\n\n"
+    "Number of arms: " + str(len(true_means)) + "\n"
+    "Arm means: " + str(true_means) + "\n"
+    "Standard deviation: " + str(std_dev) + "\n"
+    "Number of iterations: " + str(max_time_step) + "\n"
+    "Step size parameter: " + str(step_size) + "\n"
+    "Gamma: " + str(gamma))
+
+    return G, true_means, std_dev, max_time_step, step_size, gamma
+
+
+'''
+
+'''
+def coop_ucb2(G, true_means, std_dev, max_time_step, step_size, gamma):
+    # initialize some variables
+    num_agents = G.number_of_nodes() # M
+    num_arms = len(true_means) # N
+    count_per_agent_est = np.zeros((num_agents, num_arms)) # matrix of n_i^k(t)'s -- M x N
+    tot_rwd_per_agent_est = np.zeros((num_agents, num_arms)) # matrix of s_i^k(t)'s -- M x N
+    mean_per_agent_est = np.zeros((num_agents, num_arms)) # matrix of mu_i^k(t)'s -- M x N
+    upper_confidence_bounds = np.zeros((num_agents, num_arms)) # matrix of Q_i^k(t)'s -- M x N
+
+
+    
+
+
+
+
+
+
+print("Welcome to the coop-ucb simulator. The simulator runs the coop-ucb2 algorithm as described in "
+    "Landgren, Srivastava, and Leonard's paper. doi: 10.1109/CDC.2016.7798264")
+
+get_problem_instance()
