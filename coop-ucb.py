@@ -5,12 +5,11 @@
 # issue # 1: not distributed
 # issue # 2: what is gamma? Why is gamma = 1 in their simulation when paper says gamma > 1?
 # issue # 3: kappa should be in (0, 1], but kappa = d_max / (d_max - 1) ensures greater than 1
-# TODO: read more on gossip algorithms
+# TODO: how to track regret, what other metrics should I track?
 
 import random
 import networkx as nx
 import numpy as np
-
 
 ''' 
 Returns G: a networkx graph instance built from user input.
@@ -61,7 +60,7 @@ requires that the user input lower and upper bounds for means. Means are then sa
 a uniform distribution given by these lower and upper bounds.
 '''
 def get_arm_means():
-    true_means = []
+    arm_means = []
     # get number of arms
     print("Enter the number of arms: ")
     num_arms = int(input())
@@ -74,7 +73,7 @@ def get_arm_means():
     mean_generation_method = input().capitalize()
     if mean_generation_method == "M":
         print("Please enter " + str(num_arms) + " means, separated by whitespace: ")
-        true_means = [float(x) for x in input().split()]
+        arm_means = [float(x) for x in input().split()]
     elif mean_generation_method == "R":
         print("Please enter a lower bound for the arm means: ")
         mean_lower_bound = float(input())
@@ -83,15 +82,15 @@ def get_arm_means():
         if mean_lower_bound > mean_upper_bound:
             print("Error: lower bound greater than upper bound")
             return None
-        true_means = [random.uniform(mean_lower_bound, mean_upper_bound) for x in range(0, num_arms)]
+        arm_means = [random.uniform(mean_lower_bound, mean_upper_bound) for x in range(0, num_arms)]
     else:
         print("Error: Must press either 'M' or 'R'")
         return None
-    if len(true_means) != num_arms:
+    if len(arm_means) != num_arms:
         print("Error. Must enter " + str(num_arms) + " means")
         return None
     
-    return true_means
+    return arm_means
 
 
 '''
@@ -199,10 +198,11 @@ def get_coop_ucb_version():
 
 '''
 Returns an instance of the distributed cooperative multi-armed bandit problem as specified by 
-Landgren et al., in a tuple of the form (G, Mu, sigma, T, kappa, gamma). G is the network graph of agents 
-(number of agents M is implicitly stored by G), Mu is a list of the true arm means (number of arms N is 
-implicitly stored in Mu), sigma is the standard deviation, T is the number of time steps, kappa is the 
-step size parameter, and gamma is some parameter I have yet to understand.
+Landgren et al., in a tuple of the form (G, arm_means, std_dev, max_time_step, step_size, gamma). 
+G is the network graph of agents (number of agents M is implicitly stored by G), arm_means is a 
+list of the true arm means unknown to the algorithm (number of arms N is implicitly stored in arm_means), 
+std_dev is the standard deviation shared by all the arms, max_time_step is the number of time steps, step_size is the 
+step size parameter (kappa), and gamma is some parameter I have yet to understand.
 '''
 def get_problem_instance():
     print("Please take a moment to provide problem parameters. Parameters include: \n"
@@ -217,36 +217,52 @@ def get_problem_instance():
 
     # get simulation parameters
     G = get_graph() # G
-    true_means = get_arm_means() # Mu - list of m_i's
+    arm_means = get_arm_means() # Mu - list of m_i's
     std_dev = get_std_dev()  # sigma
-    max_time_step = get_max_time_step(len(true_means))  # T
+    max_time_step = get_max_time_step(len(arm_means))  # T
     step_size = get_step_size(G)  # kappa
     gamma = get_gamma() # all we know about this is supposed to be greater than 1 but they set to 1
 
     A = nx.adjacency_matrix(G).todense() # for printing purposes
     print("Here's what we got:\n"
     "Network Graph:\n\n " + str(A) + "\n\n"
-    "Number of arms: " + str(len(true_means)) + "\n"
-    "Arm means: " + str(true_means) + "\n"
+    "Number of arms: " + str(len(arm_means)) + "\n"
+    "Arm means: " + str(arm_means) + "\n"
     "Standard deviation: " + str(std_dev) + "\n"
     "Number of iterations: " + str(max_time_step) + "\n"
     "Step size parameter: " + str(step_size) + "\n"
     "Gamma: " + str(gamma))
 
-    return G, true_means, std_dev, max_time_step, step_size, gamma
+    return G, arm_means, std_dev, max_time_step, step_size, gamma
 
 
 '''
-
+Runs the coop_ucb2 algorithm on instance, where instance is a tuple containing a problem instance as
+given by get_problem_instance().
 '''
-def coop_ucb2(G, true_means, std_dev, max_time_step, step_size, gamma):
+def coop_ucb2(instance):
+    
+    # bind variable names to instance tuple values for convenience
+    G, arm_means, std_dev, max_time_step, step_size, gamma = instance
+    
     # initialize some variables
+    # also takes care of initialization step where each agent samples each arm once
     num_agents = G.number_of_nodes() # M
-    num_arms = len(true_means) # N
-    count_per_agent_est = np.zeros((num_agents, num_arms)) # matrix of n_i^k(t)'s -- M x N
-    tot_rwd_per_agent_est = np.zeros((num_agents, num_arms)) # matrix of s_i^k(t)'s -- M x N
-    mean_per_agent_est = np.zeros((num_agents, num_arms)) # matrix of mu_i^k(t)'s -- M x N
+    num_arms = len(arm_means) # N
+    P = np.eye(num_agents) - (step_size / max(list(G.degree), key=lambda x:x[1])[1]) * nx.laplacian_matrix(G) # row stochastic matrix P
+    sample_indicators = np.zeros((num_agents, num_arms)) # matrix of zeta_i^k(t)'s -- M x N
+    realized_rewards = np.zeros((num_agents, num_arms)) # matrix of r_i^k(t)'s -- M x N
+    count_per_agent_est = np.ones((num_agents, num_arms)) # matrix of n_i^k(t)'s -- M x N
+    tot_rwd_per_agent_est = np.random.normal(loc=arm_means, scale=std_dev, size=(num_agents, num_arms)) # matrix of s_i^k(t)'s -- M x N
+    mean_rwd_per_agent_est = tot_rwd_per_agent_est.copy() # matrix of mu_i^k(t)'s -- M x N
     upper_confidence_bounds = np.zeros((num_agents, num_arms)) # matrix of Q_i^k(t)'s -- M x N
+
+    # main loop for each time step
+    for t in range(num_agents, max_time_step): # TODO: check for off-by-one
+        # compute ucb, pick arm and sample
+        # perform cooperative estimation -- we CAN just do P times n(t) matrix, etc. shapes work out nicely
+
+    
 
 
     
