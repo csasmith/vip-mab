@@ -1,11 +1,9 @@
-# Simulator for the coop-ucb2 algorithm in Landgren's papers
-# note: if running original coop-ucb, need eta parameter
+# Simulator for the coop-ucb2 algorithm in Landgren's paper doi: 10.1109/CDC.2016.7798264
+# note: if ever intent to add original coop-ucb, need eta parameter and epsilons
 # 10.1109/ECC.2016.7810293 <--- doi for coop-ucb original paper
-# should provide a demo option!!
-# issue # 1: not distributed
+# issue # 1: not actually distributed...
 # issue # 2: what is gamma? Why is gamma = 1 in their simulation when paper says gamma > 1?
-# issue # 3: kappa should be in (0, 1], but kappa = d_max / (d_max - 1) ensures greater than 1
-# TODO: how to track regret, what other metrics should I track?
+# issue # 3: kappa should be in (0, 1], but kappa = d_max / (d_max - 1) ensures greater than 1... so what gives?
 
 import random
 import networkx as nx
@@ -205,74 +203,172 @@ std_dev is the standard deviation shared by all the arms, max_time_step is the n
 step size parameter (kappa), and gamma is some parameter I have yet to understand.
 '''
 def get_problem_instance():
-    print("Please take a moment to provide problem parameters. Parameters include: \n"
-    "- Agent network graph (manually or randomly generated)\n"
-    "- Number of arms\n"
-    "- Arm means (manually or randomly generated)\n"
-    "- Standard deviation (manually or randomly generated)\n"
-    "- Number of iterations\n"
-    # "- coop-ucb vs coop-ucb2\n" <-- going to focus on coop-ucb2
-    "- Step size parameter (default exists)\n"
-    "- Gamma (default exists)")
+    print("Press [C] to choose your problem parameters, or any other key to see a demo")
+    if input().capitalize() == 'C':
+        print("Please take a moment to provide problem parameters. Parameters include: \n"
+        "- Agent network graph (manually or randomly generated)\n"
+        "- Number of arms\n"
+        "- Arm means (manually or randomly generated)\n"
+        "- Standard deviation (manually or randomly generated)\n"
+        "- Number of iterations\n"
+        # "- coop-ucb vs coop-ucb2\n" <-- going to focus on coop-ucb2
+        "- Step size parameter (default exists)\n"
+        "- Gamma (default exists)\n")
 
-    # get simulation parameters
-    G = get_graph() # G
-    arm_means = get_arm_means() # Mu - list of m_i's
-    std_dev = get_std_dev()  # sigma
-    max_time_step = get_max_time_step(len(arm_means))  # T
-    step_size = get_step_size(G)  # kappa
-    gamma = get_gamma() # all we know about this is supposed to be greater than 1 but they set to 1
+        # get simulation parameters
+        G = get_graph() # G
+        arm_means = get_arm_means() # Mu - list of m_i's
+        std_dev = get_std_dev()  # sigma
+        max_time_step = get_max_time_step(len(arm_means))  # T
+        step_size = get_step_size(G)  # kappa
+        gamma = get_gamma() # all we know about this is supposed to be greater than 1 but they set to 1
+    else:
+        G = nx.bull_graph()
+        arm_means = [1, 3, 5, 5]
+        std_dev = 1
+        max_time_step = 100
+        step_size = 0.5
+        gamma = 1
 
     A = nx.adjacency_matrix(G).todense() # for printing purposes
-    print("Here's what we got:\n"
-    "Network Graph:\n\n " + str(A) + "\n\n"
+    print("PARAMETERS:\n\n"
+    "Network Graph Adjacency Matrix:\n\n " + str(A) + "\n\n"
     "Number of arms: " + str(len(arm_means)) + "\n"
     "Arm means: " + str(arm_means) + "\n"
     "Standard deviation: " + str(std_dev) + "\n"
     "Number of iterations: " + str(max_time_step) + "\n"
     "Step size parameter: " + str(step_size) + "\n"
-    "Gamma: " + str(gamma))
+    "Gamma: " + str(gamma) + "\n")
 
     return G, arm_means, std_dev, max_time_step, step_size, gamma
 
 
 '''
-Runs the coop_ucb2 algorithm on instance, where instance is a tuple containing a problem instance as
-given by get_problem_instance().
+Returns an M x N matrix of C_i^k(t)'s, where C_i^k(t) is the upper confidence bound of agent k for 
+arm i at time t. Parameters include n_t, t, gamma, sd, and M, where n_t is the matrix of the agent's 
+estimates of the total number of times each arm has been pulled per unit agent, t is the current time, 
+gamma is the same gamma parameter coop-ucb2 takes, sd is the standard deviation, and M is the number 
+of agents. We use sqrt(ln(t)) as the sublogarithmic function f(t)
 '''
-def coop_ucb2(instance):
+def compute_ucb(n_t, t, gamma, sd, M):
+    # print(type(n_t))
+    # print("original n_t shape: " + str(n_t.shape))
+    ucb = np.log(t) / n_t
+    # print("np.log(t) / n_t shape: " + str(ucb.shape))
+    numerator = n_t + np.sqrt(np.log(t))
+    # print("numerator shape: " + str(numerator.shape))
+    denom = M * n_t
+    # print("denom shape: " + str(denom.shape))
+    frac = numerator / denom
+    # print("frac shape: " + str(frac.shape))
+    # print(type(frac))
+    # print(type(ucb))
+    ucb = frac * ucb
+    ucb = 2 * gamma * ucb
+    ucb = np.sqrt(ucb)
+    ucb = sd * ucb
+    # sd * np.sqrt(2 * gamma * ((n_t + np.sqrt(np.log(t))) / (M * n_t)) * (np.log(t) / n_t))
+    return ucb
+
+
+'''
+Runs the coop_ucb2 algorithm on a problem instance as given by get_problem_instance().
+'''
+def coop_ucb2(G, arm_means, std_dev, max_time_step, step_size, gamma):
     
-    # bind variable names to instance tuple values for convenience
-    G, arm_means, std_dev, max_time_step, step_size, gamma = instance
-    
-    # initialize some variables
-    # also takes care of initialization step where each agent samples each arm once
+    # initialize variables and perform initialization step of algorithm
+
+    # important constants
     num_agents = G.number_of_nodes() # M
     num_arms = len(arm_means) # N
-    P = np.eye(num_agents) - (step_size / max(list(G.degree), key=lambda x:x[1])[1]) * nx.laplacian_matrix(G) # row stochastic matrix P
-    sample_indicators = np.zeros((num_agents, num_arms)) # matrix of zeta_i^k(t)'s -- M x N
-    realized_rewards = np.zeros((num_agents, num_arms)) # matrix of r_i^k(t)'s -- M x N
-    count_per_agent_est = np.ones((num_agents, num_arms)) # matrix of n_i^k(t)'s -- M x N
-    tot_rwd_per_agent_est = np.random.normal(loc=arm_means, scale=std_dev, size=(num_agents, num_arms)) # matrix of s_i^k(t)'s -- M x N
-    mean_rwd_per_agent_est = tot_rwd_per_agent_est.copy() # matrix of mu_i^k(t)'s -- M x N
+
+    # used only for tracking algorithm performance
+    # opt_mean = max(arm_means) # m_i*
+    # think with just arm_history we can calculate expected cumulative regret at very end
+    arm_history = np.array([[i for i in range(num_arms)] for _ in range(num_agents)]) # i^k(t) -- M x T
+
+    # for cooperative estimation step
+    d_max = max(list(G.degree), key=lambda x:x[1])[1] # max degree of any node in G
+    # NOTE: needed to call toarray() on laplacian or else everything gets converted to matrix instead of array and breaks
+    P = np.eye(num_agents) - (step_size / d_max) * nx.laplacian_matrix(G).toarray() # row stochastic matrix P -- M x M
+    
+    # matrices that are continuously read/written, ie the important stuff
+    arms_picked_indicators = np.zeros((num_agents, num_arms)) # matrix of zeta_i^k(t)'s -- M x N
+    rwds_this_iteration = np.zeros((num_agents, num_arms)) # matrix of r_i^k(t)'s -- M x N
+    est_cnt_per_agent = np.ones((num_agents, num_arms)) # matrix of n_i^k(t)'s -- M x N
+    est_tot_rwd_per_agent = np.random.normal(loc=arm_means, scale=std_dev, size=(num_agents, num_arms)) # matrix of s_i^k(t)'s -- M x N
+    est_mean_rwd_per_agent = est_tot_rwd_per_agent.copy() # matrix of mu_i^k(t)'s -- M x N
     upper_confidence_bounds = np.zeros((num_agents, num_arms)) # matrix of Q_i^k(t)'s -- M x N
 
+    # at this point the initialization step of the algorithm is done - 
+    # notice how we initialized some of the variables
+
     # main loop for each time step
-    for t in range(num_agents, max_time_step): # TODO: check for off-by-one
-        # compute ucb, pick arm and sample
-        # perform cooperative estimation -- we CAN just do P times n(t) matrix, etc. shapes work out nicely
+    for t in range(num_agents, max_time_step + 1):
+        # compute ucb, pick arm and get reward
+        upper_confidence_bounds = compute_ucb(est_cnt_per_agent, t, gamma, std_dev, num_agents)
+        arms_picked = np.argmax(est_mean_rwd_per_agent + upper_confidence_bounds, axis=1)
+        arm_history = np.c_[arm_history, arms_picked] # for tracking performance, append column of arms picked
+        for i in range(num_agents):
+            arms_picked_indicators[i, arms_picked[i]] = 1 # update zeta_i^k(t)'s
+        rwds_this_iteration = np.random.normal(loc=arm_means, scale=std_dev, size=(num_agents, num_arms)) * arms_picked_indicators
 
-    
+        # perform cooperative estimation -- we can just do P times n(t) matrix, etc. shapes work out nicely
+        est_cnt_per_agent = P @ est_cnt_per_agent + P @ arms_picked_indicators
+        est_tot_rwd_per_agent = P @ est_tot_rwd_per_agent + P @ rwds_this_iteration
+        est_mean_rwd_per_agent = est_tot_rwd_per_agent / est_cnt_per_agent
 
-
-    
-
-
-
-
+    return est_cnt_per_agent, est_tot_rwd_per_agent, est_mean_rwd_per_agent, arm_history
 
 
 print("Welcome to the coop-ucb simulator. The simulator runs the coop-ucb2 algorithm as described in "
-    "Landgren, Srivastava, and Leonard's paper. doi: 10.1109/CDC.2016.7798264")
+    "Landgren, Srivastava, and Leonard's paper. doi: 10.1109/CDC.2016.7798264\n")
 
-get_problem_instance()
+instance = get_problem_instance()
+results = coop_ucb2(*instance)
+
+# now do performance / regret analysis
+
+# get some vars
+arm_means = instance[1]
+max_time_step = instance[3]
+est_cnt_per_agent = results[0]
+est_tot_rwd_per_agent = results[1]
+est_mean_rwd_per_agent = results[2]
+# contains indices into arm_means for each agent for each choice at each time step, ie m_i^k(t)'s
+arm_history = results[3]
+
+print("RESULTS: \n")
+print("Estimated number of times each arm was sampled per unit agent: \n" + str(est_cnt_per_agent) + "\n")
+print("Estimated total reward for each arm per unit agent: \n" + str(est_tot_rwd_per_agent) + "\n")
+print("Estimated mean reward for each arm per unit agent: \n" + str(est_mean_rwd_per_agent) + "\n")
+
+exp_opt_rwd = np.ones(arm_history.shape) * max(arm_means)
+# print("opt mean, best possible exp_cum_rwd: " + str(max(arm_means)) + ", " + str(max(arm_means) * max_time_step * instance[0].number_of_nodes()))
+exp_cum_opt_rwd = np.cumsum(exp_opt_rwd, axis=1)
+exp_actual_rwd = np.zeros(arm_history.shape)
+
+for i in range(arm_history.shape[0]):
+    for j in range(arm_history.shape[1]):
+        exp_actual_rwd[i, j] = arm_means[arm_history[i, j]]
+
+exp_cum_actual_rwd = np.cumsum(exp_actual_rwd, axis=1)
+exp_cum_regret = exp_cum_opt_rwd - exp_cum_actual_rwd
+
+print("Regret Analysis:")
+print("The best possible expected cumulative reward (all agents choose optimal arm every time) was: " + str(np.sum(exp_cum_opt_rwd.T[-1])))
+print("The total expected cumulative reward was: " + str(np.sum(exp_cum_actual_rwd.T[-1])))
+print("The expected cumulative regret was: " + str(np.sum(exp_cum_regret.T[-1])))
+
+# TODO: matplotlib it 
+
+
+
+
+
+
+
+
+
+
+
