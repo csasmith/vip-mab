@@ -1,5 +1,4 @@
 # Simulator for the coop-ucb2 algorithm in Landgren's paper doi: 10.1109/CDC.2016.7798264
-# note: if ever intent to add original coop-ucb, need eta parameter and epsilons
 # 10.1109/ECC.2016.7810293 <--- doi for coop-ucb original paper
 # issue # 1: not actually distributed...
 # issue # 2: what is gamma? Why is gamma = 1 in their simulation when paper says gamma > 1?
@@ -185,16 +184,6 @@ def get_gamma():
 
 
 '''
-Returns True if we want to run coop-ucb2, False otherwise
-*** NOT USED YET - focusing on coop-ucb2
-'''
-def get_coop_ucb_version():
-    print("Press [1] if you would like to run the original coop-ucb algorithm instead."
-        " Press any other key for coop-ucb2")
-    return input().strip() != "1"
-
-
-'''
 Returns an instance of the distributed cooperative multi-armed bandit problem as specified by 
 Landgren et al., in a tuple of the form (G, arm_means, std_dev, max_time_step, step_size, gamma). 
 G is the network graph of agents (number of agents M is implicitly stored by G), arm_means is a 
@@ -344,7 +333,6 @@ print("Estimated total reward for each arm per unit agent: \n" + str(est_tot_rwd
 print("Estimated mean reward for each arm per unit agent: \n" + str(est_mean_rwd_per_agent) + "\n")
 
 exp_opt_rwd = np.ones(arm_history.shape) * max(arm_means)
-# print("opt mean, best possible exp_cum_rwd: " + str(max(arm_means)) + ", " + str(max(arm_means) * max_time_step * instance[0].number_of_nodes()))
 exp_cum_opt_rwd = np.cumsum(exp_opt_rwd, axis=1)
 exp_actual_rwd = np.zeros(arm_history.shape)
 
