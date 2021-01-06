@@ -7,6 +7,7 @@
 import random
 import networkx as nx
 import numpy as np
+import matplotlib.pyplot as plt
 
 ''' 
 Returns G: a networkx graph instance built from user input.
@@ -326,20 +327,17 @@ for i in range(arm_history.shape[0]):
 exp_cum_actual_rwd = np.cumsum(exp_actual_rwd, axis=1)
 exp_cum_regret = exp_cum_opt_rwd - exp_cum_actual_rwd
 
+time = [t for t in range(len(exp_cum_regret[0]))]
+
 print("Regret Analysis:")
 print("The best possible expected cumulative reward (all agents choose optimal arm every time) was: " + str(np.sum(exp_cum_opt_rwd.T[-1])))
 print("The total expected cumulative reward was: " + str(np.sum(exp_cum_actual_rwd.T[-1])))
 print("The expected cumulative regret was: " + str(np.sum(exp_cum_regret.T[-1])))
 
-# TODO: matplotlib it 
+for i in range(len(exp_cum_regret)):
+    plt.plot(time, exp_cum_regret[i], label="Agent " + str(i))
 
-
-
-
-
-
-
-
-
-
-
+plt.legend()
+plt.xlabel("time")
+plt.ylabel("Expected Cumulative Regret")
+plt.show()
