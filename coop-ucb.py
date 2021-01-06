@@ -240,24 +240,7 @@ gamma is the same gamma parameter coop-ucb2 takes, sd is the standard deviation,
 of agents. We use sqrt(ln(t)) as the sublogarithmic function f(t)
 '''
 def compute_ucb(n_t, t, gamma, sd, M):
-    # print(type(n_t))
-    # print("original n_t shape: " + str(n_t.shape))
-    ucb = np.log(t) / n_t
-    # print("np.log(t) / n_t shape: " + str(ucb.shape))
-    numerator = n_t + np.sqrt(np.log(t))
-    # print("numerator shape: " + str(numerator.shape))
-    denom = M * n_t
-    # print("denom shape: " + str(denom.shape))
-    frac = numerator / denom
-    # print("frac shape: " + str(frac.shape))
-    # print(type(frac))
-    # print(type(ucb))
-    ucb = frac * ucb
-    ucb = 2 * gamma * ucb
-    ucb = np.sqrt(ucb)
-    ucb = sd * ucb
-    # sd * np.sqrt(2 * gamma * ((n_t + np.sqrt(np.log(t))) / (M * n_t)) * (np.log(t) / n_t))
-    return ucb
+    return sd * np.sqrt(2 * gamma * ((n_t + np.sqrt(np.log(t))) / (M * n_t)) * (np.log(t) / n_t))
 
 
 '''
