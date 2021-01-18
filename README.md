@@ -8,7 +8,9 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Regret Analysis of Stochastic and Nonstochastic Multi-armed Bandit Problems [Bubeck, Cesa-Bianchi]](https://arxiv.org/abs/1204.5721)
 
-[Introduction to Multi-Armed Bandits [Slivkins]](https://arxiv.org/abs/1904.07272) <br><br>
+[Introduction to Multi-Armed Bandits [Slivkins]](https://arxiv.org/abs/1904.07272)
+
+[Exploration-exploitation trade-off using variance estimates in multi-armed bandits](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)<br><br>
 
 
 ### Linear Stochastic Bandit Resources
