@@ -37,10 +37,13 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Forced-Exploration Based Algorithms for Playing in Bandits with Large Action Sets [Yadkori]](https://yasin-abbasi.github.io/Yasin-MSc-Thesis.pdf) <br><br>
 
 
-### Restless Bandit Resources
+### Nonstationary Bandit Resources
 
 [Restless Bandits: Activity Allocation in a Changing World [Whittle]](https://www.jstor.org/stable/pdf/3214163.pdf?refreqid=excelsior%3Abfbb51ca2a6c95c7bf708fc7f33f31eb)
 
+[Stochastic Multi-Armed-Bandit Problem with Non-stationary Rewards [Besbes, Gur, Zeevi]](https://papers.nips.cc/paper/2014/file/903ce9225fca3e988c2af215d4e544d3-Paper.pdf)
+
+[Efficient Contextual Bandits in Non-stationary Worlds [Luo, Wei, Agarwal, Langford]](https://arxiv.org/abs/1708.01799)
 <br> <br>
 
 
