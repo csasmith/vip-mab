@@ -10,7 +10,10 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Introduction to Multi-Armed Bandits [Slivkins]](https://arxiv.org/abs/1904.07272)
 
-[Exploration-exploitation trade-off using variance estimates in multi-armed bandits [Audibert, Munos, Szepesvari]](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)<br><br>
+[Exploration-exploitation trade-off using variance estimates in multi-armed bandits [Audibert, Munos, Szepesvari]](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)
+
+[A Survey on Practical Applications of Multi-Armed and Contextual Bandits [Bouneffouf, Rish]](https://arxiv.org/pdf/1904.10040.pdf)
+<br><br>
 
 
 ### Linear Stochastic Bandit Resources
