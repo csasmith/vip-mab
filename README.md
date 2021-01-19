@@ -37,6 +37,13 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Forced-Exploration Based Algorithms for Playing in Bandits with Large Action Sets [Yadkori]](https://yasin-abbasi.github.io/Yasin-MSc-Thesis.pdf) <br><br>
 
 
+### Restless Bandit Resources
+
+[Restless Bandits: Activity Allocation in a Changing World [Whittle]](https://www.jstor.org/stable/pdf/3214163.pdf?refreqid=excelsior%3Abfbb51ca2a6c95c7bf708fc7f33f31eb)
+
+<br> <br>
+
+
 ### Distributed Bandit Resources
 
 [Federated Bandit: A Gossiping Approach [Zhu, Zhu, Liu, Liu]](https://arxiv.org/abs/2010.12763)
