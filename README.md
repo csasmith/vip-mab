@@ -13,6 +13,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Exploration-exploitation trade-off using variance estimates in multi-armed bandits [Audibert, Munos, Szepesvari]](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)
 
 [A Survey on Practical Applications of Multi-Armed and Contextual Bandits [Bouneffouf, Rish]](https://arxiv.org/pdf/1904.10040.pdf)
+
+[Large-scale Open Dataset, Pipeline, and Benchmark for Bandit Algorithms [Saito, Aihara, Matsutani, Narita]](https://arxiv.org/abs/2008.07146)
 <br><br>
 
 
