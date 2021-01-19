@@ -2,7 +2,7 @@
 Research on the multi-armed bandit problem and its variants <br><br>
 
 
-### General Bandit Papers and Resources
+### Classic K-Armed Bandit Papers and Resources
 
 [Finite-time Analysis of the Multiarmed Bandit Problem [Auer, Cesa-Bianchi, Fischer]](https://link.springer.com/article/10.1023/A:1013689704352) | [Alt](https://people.eecs.berkeley.edu/~russell/classes/cs294/s11/readings/Auer+al:2002.pdf)
 
@@ -11,14 +11,9 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Introduction to Multi-Armed Bandits [Slivkins]](https://arxiv.org/abs/1904.07272)
 
 [Exploration-exploitation trade-off using variance estimates in multi-armed bandits [Audibert, Munos, Szepesvari]](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)
-
-[A Survey on Practical Applications of Multi-Armed and Contextual Bandits [Bouneffouf, Rish]](https://arxiv.org/pdf/1904.10040.pdf)
-
-[Large-scale Open Dataset, Pipeline, and Benchmark for Bandit Algorithms [Saito, Aihara, Matsutani, Narita]](https://arxiv.org/abs/2008.07146)
 <br><br>
 
-
-### Linear Stochastic Bandit Resources
+### Contextual Bandit Resources
 
 [Associative Reinforcement Learning using Linear Probabilistic Concepts [Abe, Long]](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.31.3738&rep=rep1&type=pdf) | [Alt](http://phillong.info/publications/peval.pdf)
 
@@ -34,8 +29,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Forced-Exploration Based Algorithms for Playing in Stochastic Linear Bandits [Yadkori, Antos, Szepesvari]](https://yasin-abbasi.github.io/LinearBandit.pdf) | [Alt](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.704.7754)
 
-[Forced-Exploration Based Algorithms for Playing in Bandits with Large Action Sets [Yadkori]](https://yasin-abbasi.github.io/Yasin-MSc-Thesis.pdf) <br><br>
-
+[Forced-Exploration Based Algorithms for Playing in Bandits with Large Action Sets [Yadkori]](https://yasin-abbasi.github.io/Yasin-MSc-Thesis.pdf) 
+<br><br>
 
 ### Nonstationary Bandit Resources
 
@@ -46,7 +41,6 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Efficient Contextual Bandits in Non-stationary Worlds [Luo, Wei, Agarwal, Langford]](https://arxiv.org/abs/1708.01799)
 <br> <br>
 
-
 ### Distributed Bandit Resources
 
 [Federated Bandit: A Gossiping Approach [Zhu, Zhu, Liu, Liu]](https://arxiv.org/abs/2010.12763)
@@ -55,7 +49,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [On Distributed Cooperative Decision-Making in Multiarmed Bandits [Landgre, Srivastava, Leonard]](1512.06888)
 
-[Distributed Cooperative Decision-Making in Multiarmed Bandits: Frequentist and Bayesian Algorithms [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1606.00911) <br><br>
+[Distributed Cooperative Decision-Making in Multiarmed Bandits: Frequentist and Bayesian Algorithms [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1606.00911) 
+<br><br>
 
 ### Differential Privacy Resources
 
@@ -67,7 +62,12 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Data Cooperatives: Towards a Foundation for Decentralized Personal Data Management [Hardjono, Pentland]](https://arxiv.org/abs/1905.08819)
 - Not strictly about differential privacy, but provides great motivation/applications for DP algorithms
+<br><br>
 
+### On Bandit Applications and Implementations
 
+[A Survey on Practical Applications of Multi-Armed and Contextual Bandits [Bouneffouf, Rish]](https://arxiv.org/pdf/1904.10040.pdf)
+
+[Large-scale Open Dataset, Pipeline, and Benchmark for Bandit Algorithms [Saito, Aihara, Matsutani, Narita]](https://arxiv.org/abs/2008.07146)
 
 
