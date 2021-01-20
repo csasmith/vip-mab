@@ -11,6 +11,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Introduction to Multi-Armed Bandits [Slivkins]](https://arxiv.org/abs/1904.07272)
 
 [Exploration-exploitation trade-off using variance estimates in multi-armed bandits [Audibert, Munos, Szepesvari]](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)
+
+[Using confidence bounds for exploitation-exploration trade-offs [Auer]](https://dl.acm.org/doi/10.5555/944919.944941) | [Alt](https://www.jmlr.org/papers/volume3/auer02a/auer02a.pdf)
 <br><br>
 
 ### Contextual Bandit Resources
@@ -45,6 +47,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [On Upper-Confidence Bound Policies for Non-Stationary Bandit Problems [Garivier, Moulines]](https://arxiv.org/abs/0805.3415)
 
 [Multi-armed Bandit, Dynamic Environments and Meta-Bandits [Hartland, Gelly, Baskiotis, Teytaud, Sebag]](https://hal.archives-ouvertes.fr/hal-00113668/document)
+
+[Using confidence bounds for exploitation-exploration trade-offs [Auer]](https://dl.acm.org/doi/10.5555/944919.944941) | [Alt](https://www.jmlr.org/papers/volume3/auer02a/auer02a.pdf)
 <br> <br>
 
 ### Distributed Bandit Resources
