@@ -39,6 +39,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Stochastic Multi-Armed-Bandit Problem with Non-stationary Rewards [Besbes, Gur, Zeevi]](https://papers.nips.cc/paper/2014/file/903ce9225fca3e988c2af215d4e544d3-Paper.pdf)
 
 [Efficient Contextual Bandits in Non-stationary Worlds [Luo, Wei, Agarwal, Langford]](https://arxiv.org/abs/1708.01799)
+
+[On Abruptly-Changing and Slowly-Varying Multiarmed Bandit Problems [Wei, Srivastava]](https://arxiv.org/abs/1802.08380)
 <br> <br>
 
 ### Distributed Bandit Resources
