@@ -41,6 +41,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Efficient Contextual Bandits in Non-stationary Worlds [Luo, Wei, Agarwal, Langford]](https://arxiv.org/abs/1708.01799)
 
 [On Abruptly-Changing and Slowly-Varying Multiarmed Bandit Problems [Wei, Srivastava]](https://arxiv.org/abs/1802.08380)
+
+[On Upper-Confidence Bound Policies for Non-Stationary Bandit Problems [Garivier, Moulines]](https://arxiv.org/abs/0805.3415)
 <br> <br>
 
 ### Distributed Bandit Resources
