@@ -70,4 +70,6 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Large-scale Open Dataset, Pipeline, and Benchmark for Bandit Algorithms [Saito, Aihara, Matsutani, Narita]](https://arxiv.org/abs/2008.07146)
 
+[SMPyBandits research framework python package](https://smpybandits.github.io/)
+
 
