@@ -4,7 +4,7 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 ### Classic K-Armed Bandit Papers and Resources
 
-[Finite-time Analysis of the Multiarmed Bandit Problem [Auer, Cesa-Bianchi, Fischer]](https://link.springer.com/article/10.1023/A:1013689704352) | [Alt](https://people.eecs.berkeley.edu/~russell/classes/cs294/s11/readings/Auer+al:2002.pdf)
+[Finite-time Analysis of the Multiarmed Bandit Problem [Auer, Cesa-Bianchi, Fischer]](https://people.eecs.berkeley.edu/~russell/classes/cs294/s11/readings/Auer+al:2002.pdf) | [Alt](https://link.springer.com/article/10.1023/A:1013689704352)
 
 [Regret Analysis of Stochastic and Nonstochastic Multi-armed Bandit Problems [Bubeck, Cesa-Bianchi]](https://arxiv.org/abs/1204.5721)
 
