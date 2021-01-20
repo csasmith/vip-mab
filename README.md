@@ -43,6 +43,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [On Abruptly-Changing and Slowly-Varying Multiarmed Bandit Problems [Wei, Srivastava]](https://arxiv.org/abs/1802.08380)
 
 [On Upper-Confidence Bound Policies for Non-Stationary Bandit Problems [Garivier, Moulines]](https://arxiv.org/abs/0805.3415)
+
+[Multi-armed Bandit, Dynamic Environments and Meta-Bandits [Hartland, Gelly, Baskiotis, Teytaud, Sebag]](https://hal.archives-ouvertes.fr/hal-00113668/document)
 <br> <br>
 
 ### Distributed Bandit Resources
