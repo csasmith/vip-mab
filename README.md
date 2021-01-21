@@ -49,6 +49,10 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Multi-armed Bandit, Dynamic Environments and Meta-Bandits [Hartland, Gelly, Baskiotis, Teytaud, Sebag]](https://hal.archives-ouvertes.fr/hal-00113668/document)
 
 [Using confidence bounds for exploitation-exploration trade-offs [Auer]](https://dl.acm.org/doi/10.5555/944919.944941) | [Alt](https://www.jmlr.org/papers/volume3/auer02a/auer02a.pdf)
+
+[Regret Bounds for Restless Markov Bandits [Ortner, Ryabko, Auer, Munos]](https://arxiv.org/abs/1209.2693)
+
+[The non-stochastic multi-armed bandit problem [Auer, Cesa-Bianchi, Freund, Schapire]](https://cseweb.ucsd.edu/~yfreund/papers/bandits.pdf)
 <br> <br>
 
 ### Distributed Bandit Resources
