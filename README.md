@@ -61,7 +61,7 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Differentially-Private Federated Linear Bandits [Dubey, Pentland]](https://arxiv.org/abs/2010.11425)
 
-[On Distributed Cooperative Decision-Making in Multiarmed Bandits [Landgre, Srivastava, Leonard]](1512.06888)
+[On Distributed Cooperative Decision-Making in Multiarmed Bandits [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1512.06888)
 
 [Distributed Cooperative Decision-Making in Multiarmed Bandits: Frequentist and Bayesian Algorithms [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1606.00911) 
 
