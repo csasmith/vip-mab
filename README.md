@@ -64,6 +64,10 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [On Distributed Cooperative Decision-Making in Multiarmed Bandits [Landgre, Srivastava, Leonard]](1512.06888)
 
 [Distributed Cooperative Decision-Making in Multiarmed Bandits: Frequentist and Bayesian Algorithms [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1606.00911) 
+
+[Individual Regret in Cooperative Nonstochastic Multi-Armed Bandits [Bar-On, Mansour]](https://arxiv.org/abs/1907.03346)
+
+[Delay and Cooperation in Nonstochastic Bandits [Cesa-Bianchi, Gentile, Mansour, Minora]](https://arxiv.org/abs/1602.04741)
 <br><br>
 
 ### Differential Privacy Resources
