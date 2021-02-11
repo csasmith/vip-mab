@@ -10,6 +10,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Introduction to Multi-Armed Bandits [Slivkins]](https://arxiv.org/abs/1904.07272)
 
+[Bandit Algorithms [Lattimore, Szepesvari]](https://tor-lattimore.com/downloads/book/book.pdf)
+
 [Exploration-exploitation trade-off using variance estimates in multi-armed bandits [Audibert, Munos, Szepesvari]](http://certis.enpc.fr/~audibert/Mes%20articles/TCS08.pdf)
 
 [Using confidence bounds for exploitation-exploration trade-offs [Auer]](https://dl.acm.org/doi/10.5555/944919.944941) | [Alt](https://www.jmlr.org/papers/volume3/auer02a/auer02a.pdf)
@@ -61,7 +63,7 @@ Research on the multi-armed bandit problem and its variants <br><br>
 
 [Differentially-Private Federated Linear Bandits [Dubey, Pentland]](https://arxiv.org/abs/2010.11425)
 
-[On Distributed Cooperative Decision-Making in Multiarmed Bandits [Landgre, Srivastava, Leonard]](1512.06888)
+[On Distributed Cooperative Decision-Making in Multiarmed Bandits [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1512.06888)
 
 [Distributed Cooperative Decision-Making in Multiarmed Bandits: Frequentist and Bayesian Algorithms [Landgren, Srivastava, Leonard]](https://arxiv.org/abs/1606.00911) 
 
