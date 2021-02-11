@@ -70,6 +70,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Individual Regret in Cooperative Nonstochastic Multi-Armed Bandits [Bar-On, Mansour]](https://arxiv.org/abs/1907.03346)
 
 [Delay and Cooperation in Nonstochastic Bandits [Cesa-Bianchi, Gentile, Mansour, Minora]](https://arxiv.org/abs/1602.04741)
+
+[Collaborative Multi-Agent Multi-Armed Bandit Learning for Small-Cell Caching [Xu, Tao, Shen]](https://ieeexplore.ieee.org/abstract/document/8964583)
 <br><br>
 
 ### Differential Privacy Resources
