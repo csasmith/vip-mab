@@ -34,6 +34,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Forced-Exploration Based Algorithms for Playing in Stochastic Linear Bandits [Yadkori, Antos, Szepesvari]](https://yasin-abbasi.github.io/LinearBandit.pdf) | [Alt](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.704.7754)
 
 [Forced-Exploration Based Algorithms for Playing in Bandits with Large Action Sets [Yadkori]](https://yasin-abbasi.github.io/Yasin-MSc-Thesis.pdf) 
+
+[Contextual Markov Decision Processes[Hallak, Castro, Mannor]](https://arxiv.org/abs/1502.02259)
 <br><br>
 
 ### Nonstationary Bandit Resources
@@ -55,6 +57,8 @@ Research on the multi-armed bandit problem and its variants <br><br>
 [Regret Bounds for Restless Markov Bandits [Ortner, Ryabko, Auer, Munos]](https://arxiv.org/abs/1209.2693)
 
 [The non-stochastic multi-armed bandit problem [Auer, Cesa-Bianchi, Freund, Schapire]](https://cseweb.ucsd.edu/~yfreund/papers/bandits.pdf)
+
+[Contextual Markov Decision Processes[Hallak, Castro, Mannor]](https://arxiv.org/abs/1502.02259)
 <br> <br>
 
 ### Distributed Bandit Resources
