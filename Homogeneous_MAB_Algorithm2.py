@@ -125,29 +125,29 @@ rwds_tnspose = np.transpose(rwds) # transpose rwds to make it easier to plot
 # In[10]:
 
 
-max_rwds = np.ones(T)*max_mean
-cumu_max_rwds = np.cumsum(max_rwds)
-for agent in range(len(rwds_tnspose)):
-    cumu_actual_rwds = np.cumsum(rwds_tnspose[agent])
-    regret = (cumu_max_rwds - cumu_actual_rwds)
-    plt.scatter(range(T), regret)
+#max_rwds = np.ones(T)*max_mean
+#cumu_max_rwds = np.cumsum(max_rwds)
+#for agent in range(len(rwds_tnspose)):
+#    cumu_actual_rwds = np.cumsum(rwds_tnspose[agent])
+#    regret = (cumu_max_rwds - cumu_actual_rwds)
+#    plt.scatter(range(T), regret)
 
-plt.xlabel("Time")
-plt.ylabel("Cumulative Regret")
+#plt.xlabel("Time")
+#plt.ylabel("Cumulative Regret")
 
 
 # In[11]:
 
 
-max_rwds = np.ones(T)*max_mean
-cumu_max_rwds = np.cumsum(max_rwds)
-for agent in range(len(rwds_tnspose)):
-    regret = []
-    for t in range(len(rwds_tnspose[agent])):
-        avg = np.sum(rwds_tnspose[agent][0:t+1])/(t+1)
-        regret.append(max_mean-avg)
+#max_rwds = np.ones(T)*max_mean
+#cumu_max_rwds = np.cumsum(max_rwds)
+#for agent in range(len(rwds_tnspose)):
+#    regret = []
+#    for t in range(len(rwds_tnspose[agent])):
+#        avg = np.sum(rwds_tnspose[agent][0:t+1])/(t+1)
+#        regret.append(max_mean-avg)
     
-    plt.scatter(range(T), regret)
+#    plt.scatter(range(T), regret)
 
 plt.xlabel("Time")
 plt.ylabel("Regret")
