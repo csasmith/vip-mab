@@ -10,13 +10,16 @@ import matplotlib.pyplot as plt
 import random
 
 M = 5 # number of arms
-N = 4 # number of agents
 G = nx.Graph()
 G.add_nodes_from([0, 1, 2, 3])
-G.add_edges_from([(0, 1), (0, 2), (1, 2), (2, 3)])
+#G.add_edges_from([(0, 1), (0, 2), (1, 2), (2, 3)])
+#G = nx.wheel_graph(N)
+nodes = list(G.nodes)
+for i in nodes:
+    G.add_edge(i,i)
 A = nx.adjacency_matrix(G)
 
-N = len(G)
+N = len(G) # number of agents
 T = 1000
 
 
