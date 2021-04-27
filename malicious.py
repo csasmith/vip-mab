@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[43]:
+# In[13]:
 
 
 import networkx as nx
@@ -57,7 +57,7 @@ for i in range(len(a)):
 num_neighbors = [sum(A.toarray()[:,i]) for i in range(N)] # get cardinality of neighbors for each agent
 
 
-# In[44]:
+# In[14]:
 
 
 agent0_regret = [] # FIX THIS
@@ -121,18 +121,38 @@ for epoch in range(100):
                     n[t+1][agent][arm] = n[t][agent][arm]
                     x[t+1][agent][arm] = x[t][agent][arm] # not mentioned in paper but seems necessary
                 
-                if num_neighbors[agent] > 2*num_malicious:
-                    zsum = 0
-                    zvals = []
-                    for neighbor in neighbors[agent]: # look at current agent's neighbors
+                #if num_neighbors[agent] - 1 > 2*num_malicious:
+                zsum = 0
+                zvals = []
+                z_agent = z[t][agent][arm]
+                for neighbor in neighbors[agent]: # look at current agent's neighbors
+                    if neighbor != agent:
                         zvals.append(z[t][neighbor][arm])
-                    zvals.sort()
-                    zvals = zvals[num_malicious:-num_malicious] # ignore num_malicious lowest and highest zvals
-                    for zval in zvals:
-                        zsum += zval + x[t+1][agent][arm] - x[t][agent][arm] # calculate sum for z update
-                    z[t+1][agent][arm] = (1/(num_neighbors[agent]-2*num_malicious))*zsum # update current agent's z
-                else:
-                    z[t+1][agent][arm] = x[t+1][agent][arm]
+                zvals.sort()
+                    
+                counter = 0
+                for zval in zvals:
+                    if zval < z_agent and counter < num_malicious:
+                        zvals.remove(zval)
+                        counter += 1
+                    if counter == num_malicious:
+                        break
+                    
+                counter = 0
+                for zval in reversed(zvals):
+                    if zval > z_agent and counter < num_malicious:
+                        zvals.remove(zval)
+                        counter += 1
+                    if counter == num_malicious:
+                        break
+                    
+                zvals.append(z_agent)
+                    
+                for zval in zvals:
+                    zsum += zval + x[t+1][agent][arm] - x[t][agent][arm] # calculate sum for z update
+                z[t+1][agent][arm] = (1/(len(zvals)))*zsum # update current agent's z
+                #else:
+                    #z[t+1][agent][arm] = x[t+1][agent][arm]
 
     rwds_tnspose = np.transpose(rwds) # transpose rwds to make it easier to plot
     for agent in range(len(rwds_tnspose)):
@@ -156,7 +176,7 @@ for epoch in range(100):
             agent5_regret.append(regret)
 
 
-# In[45]:
+# In[15]:
 
 
 # FIX THIS
@@ -174,7 +194,7 @@ arrays5 = [np.array(x) for x in agent5_regret]
 avg_regret5 = [np.mean(k) for k in zip(*arrays5)]
 
 
-# In[46]:
+# In[16]:
 
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
