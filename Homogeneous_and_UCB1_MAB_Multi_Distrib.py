@@ -276,17 +276,5 @@ plt.show()
 # In[25]:
 
 
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
-ax = axes.flatten()
-ax[0].plot(range(T+1), avg_regrets[np.argmax(avg_regrets[:,-1])])
-ax[0].plot(range(T+1), avg_regrets_2[np.argmin(avg_regrets_2[:,-1])])
-
-nx.draw_networkx(G, ax=ax[1], pos=nx.spring_layout(G))
-ax[1].set_axis_off()
-
-
-# In[ ]:
-
-
 
 
