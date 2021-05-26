@@ -3,7 +3,7 @@
 
 # # Change q depending on graph
 
-# In[33]:
+# In[20]:
 
 
 import networkx as nx
@@ -11,8 +11,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from scipy.stats import truncnorm
+import time
 
-M = 6 # number of arms
+M = 10 # number of arms
 
 #G = nx.fast_gnp_random_graph(6, 0.6, seed=1,directed=True) # directed_strongly_connected.png from this
 #print(nx.is_strongly_connected(G)) # check directed_strongly_connected.png with this
@@ -33,7 +34,7 @@ N = len(G) # number of agents
 T = 1000
 
 
-# In[34]:
+# In[21]:
 
 
 a = A.toarray() # make adjacency matrix an array for ease of use
@@ -48,7 +49,7 @@ for i in range(len(a)):
 num_neighbors = [sum(A.toarray()[:,i]) for i in range(N)] # get cardinality of neighbors for each agent
 
 
-# In[35]:
+# In[22]:
 
 
 distribs = np.zeros((N,M))
@@ -61,9 +62,10 @@ for i in range(len(distribs)):
             distribs[i][j] = 2
 
 
-# In[36]:
+# In[23]:
 
 
+start = time.time()
 E = 100
 agent_regrets = np.zeros((N,E,T+1))
 
@@ -74,6 +76,7 @@ for epoch in range(E):
     x = [np.zeros((N,M)) for t in range(T+1)]
     X = [np.zeros((N,M)) for t in range(T+1)]
     z = [np.zeros((N,M)) for t in range(T+1)]
+    x_sums = np.zeros((N,M))
 
     # create rwds array to hold all rewards each agent picks
     rwds = [np.zeros(N) for t in range(T+1)]
@@ -133,10 +136,8 @@ for epoch in range(E):
             for arm in range(M): # update all arm estimations for this agent
                 if arm == candidate: # if chosen arm
                     n[t+1][agent][arm] = n[t][agent][arm] + 1
-                    xsum = 0
-                    for time in range(t+1): # sum up all rewards so far
-                        xsum += X[time][agent][arm]
-                    x[t+1][agent][arm] = (1/n[t+1][agent][arm])*xsum
+                    x_sums[agent][arm] = x_sums[agent][arm] + X[t+1][agent][arm]
+                    x[t+1][agent][arm] = (1/n[t+1][agent][arm])*x_sums[agent][arm]
                 else: # if not chosen arm
                     n[t+1][agent][arm] = n[t][agent][arm]
                     x[t+1][agent][arm] = x[t][agent][arm] # not mentioned in paper but seems necessary
@@ -155,12 +156,17 @@ for epoch in range(E):
     
         regret = np.cumsum(regret)
         agent_regrets[agent][epoch] = regret
+    if epoch % 10 == 0:
+        print("Epoch " + str(epoch) + " finished")
 avg_regrets = agent_regrets.mean(axis=1)
+end = time.time()
+print(end-start)
 
 
-# In[37]:
+# In[24]:
 
 
+start = time.time()
 E = 100
 agent_regrets_2 = np.zeros((N,E,T+1))
 
@@ -171,6 +177,7 @@ for epoch in range(E):
     x = [np.zeros((N,M)) for t in range(T+1)]
     X = [np.zeros((N,M)) for t in range(T+1)]
     z = [np.zeros((N,M)) for t in range(T+1)]
+    x_sums = np.zeros((N,M))
 
     # create rwds array to hold all rewards each agent picks
     rwds = [np.zeros(N) for t in range(T+1)]
@@ -223,10 +230,8 @@ for epoch in range(E):
             for arm in range(M): # update all arm estimations for this agent
                 if arm == candidate: # if chosen arm
                     n[t+1][agent][arm] = n[t][agent][arm] + 1
-                    xsum = 0
-                    for time in range(t+1): # sum up all rewards so far
-                        xsum += X[time][agent][arm]
-                    x[t+1][agent][arm] = (1/n[t+1][agent][arm])*xsum
+                    x_sums[agent][arm] = x_sums[agent][arm] + X[t+1][agent][arm]
+                    x[t+1][agent][arm] = (1/n[t+1][agent][arm])*x_sums[agent][arm]
                 else: # if not chosen arm
                     n[t+1][agent][arm] = n[t][agent][arm]
                     x[t+1][agent][arm] = x[t][agent][arm] # not mentioned in paper but seems necessary
@@ -241,9 +246,11 @@ for epoch in range(E):
         regret = np.cumsum(regret)
         agent_regrets_2[agent][epoch] = regret
 avg_regrets_2 = agent_regrets_2.mean(axis=1)
+end = time.time()
+print(end-start)
 
 
-# In[39]:
+# In[19]:
 
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
@@ -264,6 +271,18 @@ ax[1].set_axis_off()
 
 #plt.savefig("undirected_multi_3_distrib.png")
 plt.show()
+
+
+# In[25]:
+
+
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
+ax = axes.flatten()
+ax[0].plot(range(T+1), avg_regrets[np.argmax(avg_regrets[:,-1])])
+ax[0].plot(range(T+1), avg_regrets_2[np.argmin(avg_regrets_2[:,-1])])
+
+nx.draw_networkx(G, ax=ax[1], pos=nx.spring_layout(G))
+ax[1].set_axis_off()
 
 
 # In[ ]:
