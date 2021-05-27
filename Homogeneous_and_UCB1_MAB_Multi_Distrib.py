@@ -3,7 +3,7 @@
 
 # # Change q depending on graph
 
-# In[20]:
+# In[1]:
 
 
 import networkx as nx
@@ -34,7 +34,7 @@ N = len(G) # number of agents
 T = 1000
 
 
-# In[21]:
+# In[2]:
 
 
 a = A.toarray() # make adjacency matrix an array for ease of use
@@ -49,7 +49,7 @@ for i in range(len(a)):
 num_neighbors = [sum(A.toarray()[:,i]) for i in range(N)] # get cardinality of neighbors for each agent
 
 
-# In[22]:
+# In[3]:
 
 
 distribs = np.zeros((N,M))
@@ -62,7 +62,7 @@ for i in range(len(distribs)):
             distribs[i][j] = 2
 
 
-# In[23]:
+# In[4]:
 
 
 start = time.time()
@@ -159,11 +159,12 @@ for epoch in range(E):
     if epoch % 10 == 0:
         print("Epoch " + str(epoch) + " finished")
 avg_regrets = agent_regrets.mean(axis=1)
+std_regrets = agent_regrets.std(axis=1)
 end = time.time()
 print(end-start)
 
 
-# In[24]:
+# In[6]:
 
 
 start = time.time()
@@ -246,19 +247,23 @@ for epoch in range(E):
         regret = np.cumsum(regret)
         agent_regrets_2[agent][epoch] = regret
 avg_regrets_2 = agent_regrets_2.mean(axis=1)
+std_regrets_2 = agent_regrets_2.std(axis=1)
 end = time.time()
 print(end-start)
 
 
-# In[19]:
+# In[12]:
 
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
 ax = axes.flatten()
+
 for i in range(len(avg_regrets)):
-    ax[0].plot(range(T+1),avg_regrets[i])
+    ax[0].plot(range(T+1),avg_regrets[i],'--')
+    ax[0].fill_between(range(T+1), avg_regrets[i]+std_regrets[i], avg_regrets[i]-std_regrets[i], alpha=0.5)
 
 ax[0].plot(range(T+1),avg_regrets_2[0],'--')
+ax[0].fill_between(range(T+1), avg_regrets_2[i]+std_regrets_2[i], avg_regrets_2[i]-std_regrets_2[i], alpha=0.5)
 
 ax[0].set_xlabel("Time")
 ax[0].set_ylabel("Expected Cumulative Regret")
@@ -273,7 +278,7 @@ ax[1].set_axis_off()
 plt.show()
 
 
-# In[25]:
+# In[ ]:
 
 
 
