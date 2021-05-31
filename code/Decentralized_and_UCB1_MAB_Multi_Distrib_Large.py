@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[11]:
 
 
 decentralized_avgs = []
@@ -10,7 +10,7 @@ ucb1_avgs = []
 ucb1_stds = []
 
 
-# In[3]:
+# In[12]:
 
 
 import networkx as nx
@@ -33,6 +33,7 @@ for i in range(len(distribs)):
         elif r < 0.66:
             distribs[i][j] = 2
 
+graph_type = "undirected"
 graphs = []
 for e in range(E):
     G = nx.fast_gnp_random_graph(N, 0.5,directed=False) # undirected
@@ -41,7 +42,7 @@ for e in range(E):
     graphs.append(G)
 
 
-# In[4]:
+# In[13]:
 
 
 start = time.time()
@@ -129,9 +130,6 @@ for epoch in range(E):
             for arm in range(M): # update all arm estimations for this agent
                 if arm == candidate: # if chosen arm
                     n[t+1][agent][arm] = n[t][agent][arm] + 1
-                    #xsum = 0
-                    #for ti in range(t+1): # sum up all rewards so far
-                    #    xsum += X[ti][agent][arm]
                     x_sums[agent][arm] = x_sums[agent][arm] + X[t+1][agent][arm]
                     x[t+1][agent][arm] = (1/n[t+1][agent][arm])*x_sums[agent][arm]
                 else: # if not chosen arm
@@ -140,9 +138,19 @@ for epoch in range(E):
 
                 zsum = 0
                 for neighbor in neighbors[agent]: # look at current agent's neighbors
-                    zsum += z[t][neighbor][arm] # calculate sum for z update
+                    if graph_type != "undirected":
+                        w = 1/num_neighbors[agent]
+                    else:
+                        w = num_neighbors[agent]
+                        if num_neighbors[neighbor] > w:
+                            w = num_neighbors[neighbor]
+                        if neighbor != agent:
+                            w = 1/w
+                        else:
+                            w = 1 - (1/w)
+                    zsum += w*z[t][neighbor][arm] # calculate sum for z update
                     m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm]) # update m considering all neighbors
-                z[t+1][agent][arm] = (1/num_neighbors[agent])*(zsum + x[t+1][agent][arm] - x[t][agent][arm]) # update current agent's z
+                z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm]) # update current agent's z
     rwds_tnspose = np.transpose(rwds) # transpose rwds to make it easier to plot
     for agent in range(len(rwds_tnspose)):
         regret = []
@@ -160,7 +168,7 @@ end = time.time()
 print(end-start)
 
 
-# In[5]:
+# In[14]:
 
 
 start = time.time()
@@ -250,7 +258,7 @@ end = time.time()
 print(end-start)
 
 
-# In[6]:
+# In[15]:
 
 
 decentralized_avgs.append(avg_regrets[np.argmax(avg_regrets[:,-1])])
@@ -260,18 +268,18 @@ ucb1_stds.append(std_regrets_2[np.argmax(avg_regrets_2[:,-1])])
 
 plt.figure(figsize=(5,5))
 plt.plot(range(T+1), avg_regrets[np.argmax(avg_regrets[:,-1])])
-plt.fill_between(range(T+1), avg_regrets[np.argmax(avg_regrets[:,-1])]+std_regrets[np.argmax(avg_regrets[:,-1])], 
-                 avg_regrets[np.argmax(avg_regrets[:,-1])]-std_regrets[np.argmax(avg_regrets[:,-1])], alpha=0.5)
+#plt.fill_between(range(T+1), avg_regrets[np.argmax(avg_regrets[:,-1])]+std_regrets[np.argmax(avg_regrets[:,-1])], 
+#                 avg_regrets[np.argmax(avg_regrets[:,-1])]-std_regrets[np.argmax(avg_regrets[:,-1])], alpha=0.5)
 
 plt.plot(range(T+1), avg_regrets_2[np.argmin(avg_regrets_2[:,-1])], '--')
-plt.fill_between(range(T+1), avg_regrets_2[np.argmin(avg_regrets_2[:,-1])]+std_regrets_2[np.argmin(avg_regrets_2[:,-1])], 
-                 avg_regrets_2[np.argmin(avg_regrets_2[:,-1])]-std_regrets_2[np.argmin(avg_regrets_2[:,-1])], alpha=0.5)
+#plt.fill_between(range(T+1), avg_regrets_2[np.argmin(avg_regrets_2[:,-1])]+std_regrets_2[np.argmin(avg_regrets_2[:,-1])], 
+#                 avg_regrets_2[np.argmin(avg_regrets_2[:,-1])]-std_regrets_2[np.argmin(avg_regrets_2[:,-1])], alpha=0.5)
 
 plt.xlabel("Time")
 plt.ylabel("Expected Cumulative Regret")
 labels = ['Worst Decentralized Regret', 'Best UCB1 Regret']
 plt.legend(labels)
-plt.savefig("undirected_multi_largescale_std.eps", bbox_inches='tight')
+#plt.savefig("undirected_multi_largescale_std.eps", bbox_inches='tight')
 plt.show()
 
 
