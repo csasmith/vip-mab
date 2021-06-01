@@ -133,7 +133,7 @@ if nx.number_of_nodes(G) <= 10: # if small graph, use same graph for all epochs
         regrets.append(simulator.run())
         print('epoch: ' + str(e)) if e % 10 == 0 else None
     regrets = np.asarray(regrets) # shape (E, N, T+1)
-    avg_regrets = regrets.mean(axis=1) # shape (N, T+1)
+    avg_regrets = regrets.mean(axis=0) # shape (N, T+1)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
     ax = axes.flatten()
