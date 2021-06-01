@@ -16,7 +16,8 @@ group.add_argument('-f', '--inputFile', help="text file path containing a Networ
         "have a self-loop. Additionally, the graph must match the type parameter")
 parser.add_argument('type', choices=['strong', 'weak', 'undirected'], help="Graph type must " + 
         "be either strongly connected, weakly connected, or undirected connected")
-parser.add_argument('M', type=int, default='6', help="Number of arms")
+# changed M to numArms to match with below usage
+parser.add_argument('numArms', type=int, default='6', help="Number of arms")
 parser.add_argument('setting', choices=['homogeneous', 'heterogeneous'], help="Arm distributions can " + 
         "be homogeneous or heterogeneous")
 parser.add_argument('-m', '--means', type=float, nargs='+', help="List of M arm means within (0,1)")
@@ -29,6 +30,10 @@ parser.add_argument('-e', '--epochs', type=int, default=100, help="Number of ite
         "that Dec_UCB is repeated for")
 args = parser.parse_args()
 print(str(args))
+
+# if no means provided, have to generate defaults here once numArms is known
+if args.means == None:
+    args.means=[random.uniform(0.05, 0.95) for x in range(0, args.numArms)]
 
 # additional validation - any validation that appears to be missing is most likely in Dec_UCB.py
 if args.inputFile:
@@ -54,7 +59,7 @@ if args.epochs <= 0:
 supported_distributions = {'truncnorm', 'bernoulli', 'beta', 'uniform'}
 if any(d not in supported_distributions for d in args.distributions):
     raise ValueError("distributions must belong to the currently supported distributions. " + 
-            "Supported distributions: " + str(supported_distributions))
+        "Supported distributions: " + str(supported_distributions))
 
 # randomly generate graph if -f option not used
 if args.numAgents:
