@@ -44,7 +44,7 @@ class Dec_UCB:
             we should use. 1 corresponds to Theorem 1 and 2 corresponds to Theorem 2.
         arm_means: An array of floats bounded on (0,1) that represent the mean reward value for an arm.
             In other words, the list of mu_k's.
-        distributions: A N x M (N agents, M arms) array of fixed scipy.stats probability distributions
+        distributions: A N x M (N agents, M arms) array of frozen scipy.stats probability distributions
             where each distribution corresponds to an agent-arm pair. We could sample from the 0th arm 
             for the 0th agent as follows: distributions[0][0].rvs()
 
@@ -53,9 +53,9 @@ class Dec_UCB:
         TypeError
             If G is not a nonempty NetworkX Graph or DiGraph instance
         ValueError
-            If T is not a positive integer
-            If any arm mean lies outside of (0,1)
-            If opcode is not 1 or 2
+            If T is not a positive integer, if any arm mean lies outside of (0,1), 
+            if opcode is not 1 or 2, if not every node in G has a self loop,
+
         '''
 
         if G is None or G.is_empty() or not (isinstance(G, nx.classes.graph.Graph)
@@ -70,6 +70,9 @@ class Dec_UCB:
 
         if opcode != 1 and opcode != 2:
             raise ValueError("opcode must be either 1 or 2")
+        
+        if nx.number_of_selfloops(G) != nx.number_of_nodes(G):
+            raise ValueError("Every node should have a self-loop")
         
         # TODO: more error checking on inputs (like type of graph with opcode)
 
