@@ -87,7 +87,7 @@ if args.type == 'strong' or args.type == 'weak':
 else:
     opcode = 2
 
-def set_distribution(d):
+def set_distribution(d, j):
     
     # print('args.means[j] ' + str(args.means[j]) + ', and j is ' + str(j))
     if d == 'truncnorm':
@@ -112,28 +112,28 @@ if args.setting == 'heterogeneous':
     for i in range(args.numAgents):
         for j in range(args.numArms):
             d = random.choice(args.distributions)
-            distributions[i][j] = set_distribution(d)
+            distributions[i][j] = set_distribution(d, j)
 else:
     for j in range(args.numArms):
         d = random.choice(args.distributions)
         # print('randomly chosen distribution is ' + str(d))
         for i in range(args.numAgents):
-            distributions[i][j] = set_distribution(d)
+            distributions[i][j] = set_distribution(d, j)
 
 
 print('args.means ' + str(args.means))
 print('max_mean ' + str(max(args.means)))
+print('distributions ' + str([[d.mean() for d in arr] for arr in distributions]))
 
 # run simulations
-if nx.number_of_nodes(G) <= 10:
-    print('small, use same graph for all 100 epochs')
+if nx.number_of_nodes(G) <= 10: # if small graph, use same graph for all epochs
     regrets = []
     simulator = Dec_UCB(G, args.time, opcode, args.means, distributions)
     for e in range(args.epochs):
         regrets.append(simulator.run())
         print('epoch: ' + str(e)) if e % 10 == 0 else None
     regrets = np.asarray(regrets) # shape (E, N, T+1)
-    avg_regrets = regrets.mean(axis=0) # shape (N, T+1)
+    avg_regrets = regrets.mean(axis=1) # shape (N, T+1)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
     ax = axes.flatten()

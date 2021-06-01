@@ -102,10 +102,10 @@ class Dec_UCB:
 
         return np.sqrt((4 * np.log(t)) / (3 * n))
 
-    def theorem2_ucb(self, t, i, n):
+    def theorem2_ucb(self, t, num_neighbors, n):
         ''' Upper confidence bound function corresponding to Theorem 2.'''
 
-        return np.sqrt((3 * np.log(t)) / ((self.num_neighbors[i] * n)))
+        return np.sqrt((3 * np.log(t)) / ((num_neighbors * n)))
 
     def calculate_weight(self, i, j):
         ''' Calculates weights used in updating the local z estimate.'''
@@ -119,7 +119,7 @@ class Dec_UCB:
             return 1 / max(self.num_neighbors[i], self.num_neighbors[j])
         w = 0
         for neighbor in self.neighbors:
-            w += 1 / max(self.num_neighbors[i], self.num_neighbors[j])
+            w += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
         return 1 - w
 
 
@@ -162,15 +162,23 @@ class Dec_UCB:
         for agent in range(N):
             for arm in range(M):
                 X[1][agent][arm] = distributions[agent][arm].rvs()
+                # print('received (init) reward ' + str(X[1][agent][arm]))
                 n[1][agent][arm] += 1
                 m[1][agent][arm] += 1
                 z[1][agent][arm] = X[1][agent][arm]
                 x[1][agent][arm] = X[1][agent][arm]
+                x_sums[agent][arm] = X[1][agent][arm]
 
         # main loop
         for t in range(1, T):
             for agent in range(N):
-                
+                # if t < 10:
+                #     print('Agent ' + str(agent) + ' (T=' + str(t) + ')\n--------------')
+                #     print('n: ' + str(n[t][agent]))
+                #     print('X: ' + str(X[t][agent]))
+                #     print('x: ' + str(x[t][agent]))
+                #     print('m: ' + str(m[t][agent]))
+                #     print('z: ' + str(z[t][agent]))
                 # Choose arm
                 candidates = [] # candidate arms to choose from
                 Q = [] # corresponds to Q in paper
@@ -179,27 +187,34 @@ class Dec_UCB:
                         candidates.append(arm)
                     else: 
                         if opcode == 1:
-                            q = z[t][agent][arm] + self.theorem1_ucb(t, n[t][agent][arm])
+                            ucb = self.theorem1_ucb(t, n[t][agent][arm])
                         else:
-                            q = z[t][agent][arm] + self.theorem2_ucb(t, agent, n[t][agent][arm])
+                            ucb = self.theorem2_ucb(t, num_neighbors[agent], n[t][agent][arm])
+                        q = z[t][agent][arm] + ucb
                         Q.append(q)
                 if len(candidates) > 0: # check decision making criteria
                     candidate = random.choice(candidates)
+                    print('randomly chose candidate ' + str(candidate))
                 else:
+                    # print('Q ' + str(Q)) if t < 10 else None
                     candidate = np.argmax(Q)
 
+                print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
+
                 # Sample arm
-                X[t+1][agent][candidate] = distributions[agent][arm].rvs()
+                X[t+1][agent][candidate] = distributions[agent][candidate].rvs()
                 if X[t+1][agent][candidate] < 0 or X[t+1][agent][candidate] > 1:
                     raise ValueError("Rewards should be bounded on [0,1]")
                 rwds[t+1][agent] = X[t+1][agent][candidate]
+                # print('received reward ' + str(rwds[t+1][agent]))
 
                 # Update local variables
                 for arm in range(M):
                     # update n and x
                     if arm == candidate:
                         n[t+1][agent][arm] = n[t][agent][arm] + 1
-                        x_sums[agent][arm] += X[t+1][agent][arm]
+                        x_sums[agent][arm] = x_sums[agent][arm] + X[t+1][agent][arm]
+                        # print('x_sums: ' + str(x_sums[agent][arm])  + '\n--------------\n') if t < 10 else None
                         x[t+1][agent][arm] = (1/n[t+1][agent][arm])*x_sums[agent][arm]
                     else:
                         n[t+1][agent][arm] = n[t][agent][arm]
@@ -216,10 +231,14 @@ class Dec_UCB:
         rwds_tnspose = np.transpose(rwds) # transpose rwds to make it easier to plot
         agent_regrets = []
         max_mean = max(arm_means)
+        # print('arm means ' + str(arm_means))
+        # print('max_mean ' + str(max_mean))
+        # print('rwds_tnspose ' + str(rwds_tnspose))
         for agent in range(len(rwds_tnspose)):
             regret = []
             for t in range(len(rwds_tnspose[agent])):
                 avg = np.sum(rwds_tnspose[agent][0:t+1]) / (t+1)
+                # print(str(avg))
                 regret.append(max_mean - avg)
             regret = np.cumsum(regret)
             agent_regrets.append(regret)
