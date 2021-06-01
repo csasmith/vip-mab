@@ -1,11 +1,11 @@
-''' Exposes the Dec_UCB class for running the Dec_UCB algorithm with arbitrary parameters.'''
+''' Run the Dec_UCB algorithm with arbitrary parameters.'''
 
 import networkx as nx
 import numpy as np
 import random
 
 class Dec_UCB:
-    ''' The Dec_UCB class allows us to run the Dec_UCB algorithm with arbitrary parameters.
+    ''' Create custom problem instances and run Dec_UCB on them
 
         Create a Dec_UCB instance with the desired parameters and call run() on the instance.
 
@@ -42,12 +42,36 @@ class Dec_UCB:
         T: The number of time steps the Dec_UCB algorithm will run for.
         opcode: Either 1 or 2. The opcode tells us which upper confidence bound function and weights
             we should use. 1 corresponds to Theorem 1 and 2 corresponds to Theorem 2.
-        arm_means: An array of floats bounded on [0,1] that represent the mean reward value for an arm.
+        arm_means: An array of floats bounded on (0,1) that represent the mean reward value for an arm.
             In other words, the list of mu_k's.
         distributions: A N x M (N agents, M arms) array of fixed scipy.stats probability distributions
             where each distribution corresponds to an agent-arm pair. We could sample from the 0th arm 
             for the 0th agent as follows: distributions[0][0].rvs()
+
+        Raises
+        ------
+        TypeError
+            If G is not a nonempty NetworkX Graph or DiGraph instance
+        ValueError
+            If T is not a positive integer
+            If any arm mean lies outside of (0,1)
+            If opcode is not 1 or 2
         '''
+
+        if G is None or G.is_empty() or not (isinstance(G, nx.classes.graph.Graph)
+                or isinstance(G, nx.classes.digraph.DiGraph)):
+            raise TypeError("G needs to be a nonempty NetworkX Graph or Digraph instance")
+
+        if T < 1 or type(T) is not int:
+            raise ValueError("T needs to be a positive integer")
+        
+        if any(mu <= 0 or mu >= 1 for mu in arm_means):
+            raise ValueError("Arm means must lie in (0,1)")
+
+        if opcode != 1 and opcode != 2:
+            raise ValueError("opcode must be either 1 or 2")
+        
+        # TODO: more error checking on inputs (like type of graph with opcode)
 
         self.G = G # networkx graph
         self.T = T # number of time steps
@@ -100,8 +124,14 @@ class Dec_UCB:
     def run(self):
         ''' Run the Dec_UCB algorithm. 
 
-        Returns:
-            agent_regrets: an N x T array of expected cumulative regret for each agent at every time step.
+        Raises
+        ------
+        ValueError
+            If realized reward is outside the [0,1] boundary
+
+        Returns
+        -------
+        agent_regrets: an N x T array of expected cumulative regret for each agent at every time step.
         '''
         
         # shorten variable names for convenience
@@ -157,6 +187,8 @@ class Dec_UCB:
 
                 # Sample arm
                 X[t+1][agent][candidate] = distributions[agent][arm].rvs()
+                if X[t+1][agent][candidate] < 0 or X[t+1][agent][candidate] > 1:
+                    raise ValueError("Rewards should be bounded on [0,1]")
                 rwds[t+1][agent] = X[t+1][agent][candidate]
 
                 # Update local variables
