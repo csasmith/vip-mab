@@ -6,6 +6,7 @@ import networkx as nx
 import numpy as np
 import scipy.stats as sps
 import random
+import matplotlib.pyplot as plt
 
 # parse arguments from standard input
 parser = argparse.ArgumentParser()
