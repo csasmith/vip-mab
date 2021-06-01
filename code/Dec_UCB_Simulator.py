@@ -21,7 +21,7 @@ parser.add_argument('numArms', type=int, default='6', help="Number of arms")
 parser.add_argument('setting', choices=['homogeneous', 'heterogeneous'], help="Arm distributions can " + 
         "be homogeneous or heterogeneous")
 parser.add_argument('-m', '--means', type=float, nargs='+', help="List of M arm means within (0,1)")
-parser.add_argument('-d', '--distributions', nargs='+', default='truncnorm', help="List of scipy " + 
+parser.add_argument('-d', '--distributions', nargs='+', default=['truncnorm'], help="List of scipy " + 
         "probability distribution names")
 parser.add_argument('-s', '--stddev', type=float, default=0.05, help="Standard deviation, " + 
         "if applicable to any distribution")
