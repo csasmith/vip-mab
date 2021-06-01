@@ -58,7 +58,7 @@ class Dec_UCB:
 
         '''
 
-        if G is None or G.is_empty() or not (isinstance(G, nx.classes.graph.Graph)
+        if G is None or not (isinstance(G, nx.classes.graph.Graph)
                 or isinstance(G, nx.classes.digraph.DiGraph)):
             raise TypeError("G needs to be a nonempty NetworkX Graph or Digraph instance")
 
