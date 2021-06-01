@@ -88,9 +88,11 @@ else:
     opcode = 2
 
 def set_distribution(d):
+    
+    # print('args.means[j] ' + str(args.means[j]) + ', and j is ' + str(j))
     if d == 'truncnorm':
         a = (0 - args.means[j]) / args.stddev
-        b = (1 - args.means[j] / args.stddev)
+        b = (1 - args.means[j]) / args.stddev
         return sps.truncnorm(a, b, loc=args.means[j], scale=args.stddev)
     if d == 'bernoulli':
         return sps.bernoulli(args.means[j])
@@ -114,8 +116,13 @@ if args.setting == 'heterogeneous':
 else:
     for j in range(args.numArms):
         d = random.choice(args.distributions)
+        # print('randomly chosen distribution is ' + str(d))
         for i in range(args.numAgents):
             distributions[i][j] = set_distribution(d)
+
+
+print('args.means ' + str(args.means))
+print('max_mean ' + str(max(args.means)))
 
 # run simulations
 if nx.number_of_nodes(G) <= 10:
@@ -124,14 +131,16 @@ if nx.number_of_nodes(G) <= 10:
     simulator = Dec_UCB(G, args.time, opcode, args.means, distributions)
     for e in range(args.epochs):
         regrets.append(simulator.run())
-    regrets = np.asarray(regrets)
-    avg_regrets = regrets.mean(axis=1)
+        print('epoch: ' + str(e)) if e % 10 == 0 else None
+    regrets = np.asarray(regrets) # shape (E, N, T+1)
+    avg_regrets = regrets.mean(axis=0) # shape (N, T+1)
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
     ax = axes.flatten()
 
     for i in range(len(avg_regrets)):
         ax[0].plot(range(args.time+1),avg_regrets[i])
+        # print(str(avg_regrets[i]))
 
     #ax[0].plot(range(args.time+1),avg_regrets_2[0],'--')
 
