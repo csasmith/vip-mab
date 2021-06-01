@@ -119,6 +119,32 @@ else:
 # run simulations
 if nx.number_of_nodes(G) <= 10:
     print('small, use same graph for all 100 epochs')
+    regrets = []
+    simulator = Dec_UCB(G, args.time, opcode, args.means, distributions)
+    for e in range(args.epochs):
+        regrets.append(simulator.run())
+    regrets = np.asarray(regrets)
+    avg_regrets = regrets.mean(axis=1)
+
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
+    ax = axes.flatten()
+
+    for i in range(len(avg_regrets)):
+        ax[0].plot(range(args.time+1),avg_regrets[i])
+
+    #ax[0].plot(range(args.time+1),avg_regrets_2[0],'--')
+
+    ax[0].set_xlabel("Time")
+    ax[0].set_ylabel("Expected Cumulative Regret")
+    labels = ["Agent " + str(i) for i in range(args.numAgents)]
+    #labels.append('UCB1')
+    ax[0].legend(labels)
+
+    nx.draw_networkx(G, ax=ax[1], pos=nx.spring_layout(G))
+    ax[1].set_axis_off()
+
+    #plt.savefig("weakly_multi_3_distrib.eps", bbox_inches='tight')
+    plt.show()
 else:
     print('large, use different graph for each epoch... unless specific graph was given')
     # if file was given, we would probably want to use that for all simulations
