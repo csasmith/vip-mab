@@ -31,10 +31,6 @@ parser.add_argument('-e', '--epochs', type=int, default=100, help="Number of ite
 args = parser.parse_args()
 print(str(args))
 
-# if no means provided, have to generate defaults here once numArms is known
-if args.means == None:
-    args.means=[random.uniform(0.05, 0.95) for x in range(0, args.numArms)]
-
 # additional validation - any validation that appears to be missing is most likely in Dec_UCB.py
 if args.inputFile:
     G = nx.read_multiline_adjlist(args.inputFile)
@@ -60,6 +56,10 @@ supported_distributions = {'truncnorm', 'bernoulli', 'beta', 'uniform'}
 if any(d not in supported_distributions for d in args.distributions):
     raise ValueError("distributions must belong to the currently supported distributions. " + 
         "Supported distributions: " + str(supported_distributions))
+
+# if no means provided, have to generate defaults here once numArms is known
+if args.means == None:
+    args.means=[random.uniform(0.05, 0.95) for x in range(0, args.numArms)]
 
 # randomly generate graph if -f option not used
 if args.numAgents:
