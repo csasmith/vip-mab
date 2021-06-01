@@ -38,7 +38,10 @@ if args.means == None:
 
 # additional validation - any validation that appears to be missing is most likely in Dec_UCB.py
 if args.inputFile:
-    G = nx.read_multiline_adjlist(args.inputFile)
+    if args.type == 'undirected':
+        G = nx.read_multiline_adjlist(args.inputFile)
+    else:
+        G = nx.read_multiline_adjlist(args.inputFile, create_using=nx.DiGraph)
     if args.type == 'strong' and not nx.is_strongly_connected(G):
         raise TypeError("Graph type must match type argument")
     if args.type == 'weak' and not nx.is_weakly_connected(G):
