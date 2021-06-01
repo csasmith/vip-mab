@@ -75,6 +75,10 @@ if args.numAgents:
         G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=False)
         while not nx.is_connected(G):
             G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=False)
+    # add self-loops
+    nodes = list(G.nodes)
+    for i in nodes:
+        G.add_edge(i,i)
 
 # get opcode from graph type
 if args.type == 'strong' or args.type == 'weak':
