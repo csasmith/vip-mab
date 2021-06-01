@@ -118,7 +118,7 @@ class Dec_UCB:
         if i != j:
             return 1 / max(self.num_neighbors[i], self.num_neighbors[j])
         w = 0
-        for neighbor in self.neighbors:
+        for neighbor in range(self.num_neighbors[i]):
             w += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
         return 1 - w
 
@@ -199,7 +199,7 @@ class Dec_UCB:
                     # print('Q ' + str(Q)) if t < 10 else None
                     candidate = np.argmax(Q)
 
-                print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
+                # print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
 
                 # Sample arm
                 X[t+1][agent][candidate] = distributions[agent][candidate].rvs()
