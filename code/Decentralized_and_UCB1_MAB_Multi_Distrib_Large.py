@@ -20,9 +20,13 @@ import random
 from scipy.stats import truncnorm
 import time
 
-M = 10 # number of arms
-N = 50 # number of agents
-E = 100 # number of epochs
+# M = 10 # number of arms
+# N = 50 # number of agents
+# E = 100 # number of epochs
+# T = 1000
+M = 5
+N = 10
+E = 5
 T = 1000
 distribs = np.zeros((N,M))
 for i in range(len(distribs)):
@@ -141,13 +145,20 @@ for epoch in range(E):
                     if graph_type != "undirected":
                         w = 1/num_neighbors[agent]
                     else:
-                        w = num_neighbors[agent]
-                        if num_neighbors[neighbor] > w:
-                            w = num_neighbors[neighbor]
                         if neighbor != agent:
-                            w = 1/w
+                            w = 1 / max(num_neighbors[agent], num_neighbors[neighbor])
                         else:
-                            w = 1 - (1/w)
+                            w = 0
+                            for neighbor in neighbors[agent]:
+                                w += 1 / max(num_neighbors[agent], num_neighbors[neighbor])
+                            w = 1 - w
+                        # w = num_neighbors[agent]
+                        # if num_neighbors[neighbor] > w:
+                        #     w = num_neighbors[neighbor]
+                        # if neighbor != agent:
+                        #     w = 1/w
+                        # else:
+                        #     w = 1 - (1/w)
                     zsum += w*z[t][neighbor][arm] # calculate sum for z update
                     m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm]) # update m considering all neighbors
                 z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm]) # update current agent's z
