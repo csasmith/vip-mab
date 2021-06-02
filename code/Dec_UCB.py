@@ -108,21 +108,21 @@ class Dec_UCB:
 
         return np.sqrt((3 * np.log(t)) / ((num_neighbors * n)))
 
-    def calculate_weight(self, i, j):
-        ''' Calculates weights used in updating the local z estimate.'''
+    def calculate_undirected_weights(self):
+        ''' Calculates weights as a NxN array. '''
 
-        # Theorem 1 weight
-        if self.opcode == 1:
-            w = 1 / self.num_neighbors[i]
-        else: # Theorem 2 weight
-            if i != j:
-                w = 1 / max(self.num_neighbors[i], self.num_neighbors[j])
-            else:
-                w = 0
-                for neighbor in self.neighbors[i]:
-                    w += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
-                w = 1 - w
-        return w
+        W = np.zeros((self.N, self.N))
+        for i in range(self.N):
+            for j in range(self.N):
+                if i != j:
+                    W[i][j] = 1 / max(self.num_neighbors[i], self.num_neighbors[j])
+                else:
+                    weight = 0
+                    for neighbor in self.neighbors[i]:
+                        weight += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
+                    weight = 1 - weight
+                    W[i][j] = weight
+        return W
 
 
 
@@ -140,7 +140,6 @@ class Dec_UCB:
         '''
         
         # shorten variable names for convenience
-        G = self.G
         T = self.T
         opcode = self.opcode
         arm_means = self.arm_means
@@ -156,7 +155,8 @@ class Dec_UCB:
         x = [np.zeros((N,M)) for t in range(T+1)] # local sample means
         X = [np.zeros((N,M)) for t in range(T+1)] # realized rewards from arm pulls
         z = [np.zeros((N,M)) for t in range(T+1)] # local estimates of global arm sample means
-
+        
+        W = self.calculate_undirected_weights() # undirected weights NxN array
         x_sums = np.zeros((N,M)) # used to calculate running sums of rewards
         rwds = [np.zeros(N) for t in range(T+1)] # create rwds array to hold all rewards each agent receives
 
@@ -201,7 +201,7 @@ class Dec_UCB:
                     print('Q ' + str(Q)) if t < 10 else None
                     candidate = np.argmax(Q)
 
-                print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
+                # print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
 
                 # Sample arm
                 X[t+1][agent][candidate] = distributions[agent][candidate].rvs()
@@ -224,12 +224,12 @@ class Dec_UCB:
                         x[t+1][agent][arm] = x[t][agent][arm]
                     # update z and m, these require looping over an agent's neighborhood
                     zsum = 0 # weighted summation portion of updated z value
-                    for neighbor in neighbors[agent]:
-                        w = self.calculate_weight(agent, neighbor)
-                        print('w: ' + str(w)) if t < 3 else None
+                    for neighbor in neighbors[agent]: #TODO: make weights a NxN array
+                        w = 1 / num_neighbors[agent] if opcode == 1 else W[agent][neighbor]
                         zsum += (w * z[t][neighbor][arm])
                         m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])
                     z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm])
+                    print('-') if t < 3 else None
                 print('--------------\n') if t < 10 else None
         
         # Algorithm finished. Use reward data to calculate and format our return value
