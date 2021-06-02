@@ -86,7 +86,7 @@ if args.epochs <= 0:
     raise ValueError("The number of epochs must be a positive integer")
 
 # if file input provided, assume we don't want to refresh graph every epoch
-args.refreshGraph = True if args.inputFile else args.refreshGraph
+args.refreshGraph = False if args.inputFile else args.refreshGraph
 
 # randomly generate graph if -f option not used
 if args.numAgents:
