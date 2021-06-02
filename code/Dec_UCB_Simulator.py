@@ -41,8 +41,9 @@ parser.add_argument('numArms', type=int, default='6', help="Number of arms")
 parser.add_argument('setting', choices=['homogeneous', 'heterogeneous'], help="Arm distributions can " + 
         "be homogeneous or heterogeneous")
 parser.add_argument('-m', '--means', type=float, nargs='+', help="List of M arm means within (0,1)")
-parser.add_argument('-d', '--distributions', nargs='+', default=['truncnorm'], help="List of scipy " + 
-        "probability distribution names")
+parser.add_argument('-d', '--distributions', nargs='+',
+        choices=['truncnorm', 'beta', 'bernoulli', 'uniform'],
+        default=['truncnorm'], help="List of scipy probability distribution names")
 parser.add_argument('-s', '--stddev', type=float, default=0.05, help="Standard deviation, " + 
         "if applicable to any distribution")
 parser.add_argument('-t', '--time', type=int, default=1000, help="Number of time steps")
@@ -83,10 +84,6 @@ if args.time <= 0:
     raise ValueError('The number of time steps must be a positive integer')
 if args.epochs <= 0:
     raise ValueError("The number of epochs must be a positive integer")
-supported_distributions = {'truncnorm', 'bernoulli', 'beta', 'uniform'}
-if any(d not in supported_distributions for d in args.distributions):
-    raise ValueError("distributions must belong to the currently supported distributions. " + 
-        "Supported distributions: " + str(supported_distributions))
 
 # if file input provided, assume we don't want to refresh graph every epoch
 args.refreshGraph = True if args.inputFile else args.refreshGraph
@@ -145,14 +142,8 @@ means = args.means
 simulator_Dec_UCB = Dec_UCB(G, args.time, opcode, means, distributions)
 simulator_UCB1 = UCB1(args.time, means, distributions, numAgents)
 for e in range(args.epochs):
-    print('epoch ' + str(e) + ' means ' + str(means))
-    print('epoch ' + str(e) + ' max_mean ' + str(max(means)))
-    r1 = simulator_Dec_UCB.run()
-    print('epoch ' + str(e) + ' dec_ucb regrets: ' + str(r1))
-    regrets_Dec_UCB.append(r1)
-    r2 = simulator_UCB1.run()
-    print('epoch ' + str(e) + ' ucb1 regrets: ' + str(r2))
-    regrets_UCB1.append(r2)
+    regrets_Dec_UCB.append(simulator_Dec_UCB.run())
+    regrets_UCB1.append(simulator_UCB1.run())
     means = [random.uniform(0.05, 0.95) for x in range(args.numArms)] if args.refreshMeans else means
     distributions = generate_distributions(args.setting, args.numArms, numAgents, args.distributions, means, args.stddev)
     G = generate_random_graph(numAgents, args.type) if args.refreshGraph else G
@@ -163,9 +154,6 @@ regrets_Dec_UCB = np.asarray(regrets_Dec_UCB)
 regrets_UCB1 = np.asarray(regrets_UCB1)
 avg_regrets_Dec_UCB = regrets_Dec_UCB.mean(axis=0)
 avg_regrets_UCB1 = regrets_UCB1.mean(axis=0)
-
-print('ucb1 argmin regrets ' + str(avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])]))
-print('max regret ucb1: ' + str(max(avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])])))
 
 # plot results
 if args.refreshGraph or numAgents > 10: # plot worst Dec_UCB agent vs best UCB1 agent
