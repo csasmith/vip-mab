@@ -153,7 +153,6 @@ class Dec_UCB:
         n = [np.zeros((N,M)) for t in range(T+1)] # local sample counters
         m = [np.zeros((N,M)) for t in range(T+1)] # local estimates of maximal global number of arm pulls
         x = [np.zeros((N,M)) for t in range(T+1)] # local sample means
-        X = [np.zeros((N,M)) for t in range(T+1)] # realized rewards from arm pulls
         z = [np.zeros((N,M)) for t in range(T+1)] # local estimates of global arm sample means
         
         W = self.calculate_undirected_weights() # undirected weights NxN array
@@ -163,13 +162,12 @@ class Dec_UCB:
         # initialization step
         for agent in range(N):
             for arm in range(M):
-                X[1][agent][arm] = distributions[agent][arm].rvs()
+                reward = distributions[agent][arm].rvs()
                 # print('received (init) reward ' + str(X[1][agent][arm]))
                 n[1][agent][arm] += 1
                 m[1][agent][arm] += 1
-                z[1][agent][arm] = X[1][agent][arm]
-                x[1][agent][arm] = X[1][agent][arm]
-                x_sums[agent][arm] = X[1][agent][arm]
+                z[1][agent][arm] = reward
+                x[1][agent][arm] = reward
 
         # main loop
         for t in range(1, T):
@@ -177,7 +175,6 @@ class Dec_UCB:
                 # if t < 10:
                 #     print('Agent ' + str(agent) + ' (T=' + str(t) + ')\n--------------')
                 #     print('n: ' + str(n[t][agent]))
-                #     print('X: ' + str(X[t][agent]))
                 #     print('x: ' + str(x[t][agent]))
                 #     print('m: ' + str(m[t][agent]))
                 #     print('z: ' + str(z[t][agent]))
@@ -205,21 +202,18 @@ class Dec_UCB:
                 # print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
 
                 # Sample arm
-                X[t+1][agent][candidate] = distributions[agent][candidate].rvs()
-                if X[t+1][agent][candidate] < 0 or X[t+1][agent][candidate] > 1:
+                reward = distributions[agent][candidate].rvs()
+                if reward < 0 or reward > 1:
                     raise ValueError("Rewards should be bounded on [0,1]")
-                rwds[t+1][agent] = X[t+1][agent][candidate]
+                rwds[t+1][agent] = reward
                 # print('received reward ' + str(rwds[t+1][agent]))
 
                 # Update local variables
-                # print('agent, neighbors[agent]: ' + str(agent) + ', ' + str(neighbors[agent])) if t < 3 else None
                 for arm in range(M):
                     # update n and x
                     if arm == candidate:
                         n[t+1][agent][arm] = n[t][agent][arm] + 1
-                        x_sums[agent][arm] = x_sums[agent][arm] + X[t+1][agent][arm]
-                        # print('x_sums: ' + str(x_sums[agent][arm])) if t < 10 else None
-                        x[t+1][agent][arm] = (1/n[t+1][agent][arm])*x_sums[agent][arm]
+                        x[t+1][agent][arm] = ((x[t][agent][arm] * n[t][agent][arm]) + reward) / n[t+1][agent][arm]
                     else:
                         n[t+1][agent][arm] = n[t][agent][arm]
                         x[t+1][agent][arm] = x[t][agent][arm]
@@ -230,7 +224,6 @@ class Dec_UCB:
                         zsum += (w * z[t][neighbor][arm])
                         m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])
                     z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm])
-                    # print('-') if t < 3 else None
                 # print('--------------\n') if t < 10 else None
         
         # Algorithm finished. Use reward data to calculate and format our return value
