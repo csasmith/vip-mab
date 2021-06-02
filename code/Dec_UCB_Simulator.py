@@ -89,7 +89,7 @@ if args.epochs <= 0:
 args.refreshGraph = False if args.inputFile else args.refreshGraph
 
 # randomly generate graph if -f option not used
-if args.numAgents:
+if args.numAgents and args.inputFile == None:
     G = generate_random_graph(args.numAgents, args.type)
 numAgents = G.number_of_nodes()
 
