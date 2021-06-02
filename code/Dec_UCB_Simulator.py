@@ -71,7 +71,7 @@ if args.inputFile:
         raise TypeError("Graph type must match type argument")
     if args.type == 'undirected' and not nx.is_connected(G):
         raise TypeError("Graph type must match type argument")
-if args.numAgents <= 0:
+if args.numAgents and args.numAgents <= 0:
     raise ValueError("numAgents needs to be a positive integer")
 if args.numArms <= 0:
     raise ValueError("numArms needs to be a positive integer")
@@ -94,61 +94,70 @@ args.refreshGraph = True if args.inputFile else args.refreshGraph
 # randomly generate graph if -f option not used
 if args.numAgents:
     G = generate_random_graph(args.numAgents, args.type)
+numAgents = G.number_of_nodes()
 
 # get opcode from graph type
-if args.type == 'strong' or args.type == 'weak' or args.numAgents == 1:
+if args.type == 'strong' or args.type == 'weak' or numAgents == 1:
     opcode = 1 # note if N=1 we do not want undirected weights so opcode = 1
 else:
     opcode = 2
 
-def set_distribution(d, j):
+def set_distribution(d, j, means, stddev):
     if d == 'truncnorm':
-        a = (0 - args.means[j]) / args.stddev
-        b = (1 - args.means[j]) / args.stddev
-        return sps.truncnorm(a, b, loc=args.means[j], scale=args.stddev)
+        a = (0 - means[j]) / stddev
+        b = (1 - means[j]) / stddev
+        return sps.truncnorm(a, b, loc=means[j], scale=stddev)
     if d == 'bernoulli':
-        return sps.bernoulli(args.means[j])
-    if d == 'beta': # TODO: standard deviation...
-        alpha = args.means[j] * (args.means[j] * (1 - args.means[j]) / args.stddev**2 - 1)
-        beta = (1 - args.means[j]) * (args.means[j] * (1 - args.means[j]) / args.stddev**2 - 1)
+        return sps.bernoulli(means[j])
+    if d == 'beta': # TODO: either make stddev for beta 0.05, or mu(1-mu)
+        alpha = means[j] * (means[j] * (1 - means[j]) / stddev**2 - 1)
+        beta = (1 - means[j]) * (means[j] * (1 - means[j]) / stddev**2 - 1)
         return sps.beta(alpha, beta)
     if d == 'uniform':
         # we wish to obtain a uniform distribution given a certain mean
         # to do this, we pick the widest uniform distribution possible still in [0,1]
-        radius = min(args.means[j], abs(1 - args.means[j]))
-        return sps.uniform(loc=args.means[j] - radius, scale=2*radius) # should be [loc, loc + scale]
+        radius = min(means[j], abs(1 - means[j]))
+        return sps.uniform(loc=means[j] - radius, scale=2*radius) # should be [loc, loc + scale]
 
-# create distributions array
-distributions = [[None for i in range(args.numArms)] for i in range(args.numAgents)]
-if args.setting == 'heterogeneous':
-    for i in range(args.numAgents):
-        for j in range(args.numArms):
-            d = random.choice(args.distributions)
-            distributions[i][j] = set_distribution(d, j)
-else:
-    for j in range(args.numArms):
-        d = random.choice(args.distributions)
-        # print('randomly chosen distribution is ' + str(d))
-        for i in range(args.numAgents):
-            distributions[i][j] = set_distribution(d, j)
+def generate_distributions(setting, numArms, numAgents, distributionOptions, means, stddev):
+    distributions = [[None for i in range(numArms)] for i in range(numAgents)]
+    if setting == 'heterogeneous':
+        for i in range(numAgents):
+            for j in range(numArms):
+                d = random.choice(distributionOptions)
+                distributions[i][j] = set_distribution(d, j, means, stddev)
+    else:
+        for j in range(numArms):
+            d = random.choice(distributionOptions)
+            for i in range(numAgents):
+                distributions[i][j] = set_distribution(d, j, means, stddev)
+    return distributions
 
+distributions = generate_distributions(args.setting, args.numArms, numAgents, args.distributions, args.means, args.stddev)
 
-print('args.means ' + str(args.means))
-print('max_mean ' + str(max(args.means)))
+print('args.distributions ' + str(args.distributions))
 # print('distributions ' + str([[d.mean() for d in arr] for arr in distributions]))
 
 # run simulations
 regrets_Dec_UCB = []
 regrets_UCB1 = []
-simulator_Dec_UCB = Dec_UCB(G, args.time, opcode, args.means, distributions)
-simulator_UCB1 = UCB1(args.time, args.means, distributions, G.number_of_nodes())
+means = args.means
+simulator_Dec_UCB = Dec_UCB(G, args.time, opcode, means, distributions)
+simulator_UCB1 = UCB1(args.time, means, distributions, numAgents)
 for e in range(args.epochs):
-    regrets_Dec_UCB.append(simulator_Dec_UCB.run())
-    regrets_UCB1.append(simulator_UCB1.run())
-    new_means = [random.uniform(0.05, 0.95) for x in range(0, args.numArms)] if args.refreshMeans else args.means
-    new_G = generate_random_graph(G.number_of_nodes(), args.type) if args.refreshGraph else G
-    simulator_Dec_UCB = Dec_UCB(new_G, args.time, opcode, new_means, distributions)
-    simulator_UCB1 = UCB1(args.time, new_means, distributions, G.number_of_nodes())
+    print('epoch ' + str(e) + ' means ' + str(means))
+    print('epoch ' + str(e) + ' max_mean ' + str(max(means)))
+    r1 = simulator_Dec_UCB.run()
+    print('epoch ' + str(e) + ' dec_ucb regrets: ' + str(r1))
+    regrets_Dec_UCB.append(r1)
+    r2 = simulator_UCB1.run()
+    print('epoch ' + str(e) + ' ucb1 regrets: ' + str(r2))
+    regrets_UCB1.append(r2)
+    means = [random.uniform(0.05, 0.95) for x in range(args.numArms)] if args.refreshMeans else means
+    distributions = generate_distributions(args.setting, args.numArms, numAgents, args.distributions, means, args.stddev)
+    G = generate_random_graph(numAgents, args.type) if args.refreshGraph else G
+    simulator_Dec_UCB = Dec_UCB(G, args.time, opcode, means, distributions)
+    simulator_UCB1 = UCB1(args.time, means, distributions, numAgents)
     print('epoch: ' + str(e)) if e % 10 == 0 else None
 regrets_Dec_UCB = np.asarray(regrets_Dec_UCB)
 regrets_UCB1 = np.asarray(regrets_UCB1)
@@ -156,9 +165,10 @@ avg_regrets_Dec_UCB = regrets_Dec_UCB.mean(axis=0)
 avg_regrets_UCB1 = regrets_UCB1.mean(axis=0)
 
 print('ucb1 argmin regrets ' + str(avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])]))
+print('max regret ucb1: ' + str(max(avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])])))
 
 # plot results
-if args.refreshGraph or args.numAgents > 10: # plot worst Dec_UCB agent vs best UCB1 agent
+if args.refreshGraph or numAgents > 10: # plot worst Dec_UCB agent vs best UCB1 agent
     plt.figure(figsize=(5,5))
     plt.plot(range(args.time + 1), avg_regrets_Dec_UCB[np.argmax(avg_regrets_Dec_UCB[:, -1])])
     plt.plot(range(args.time + 1), avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])])
@@ -174,7 +184,7 @@ else: # plot all Dec_UCB agents against best UCB1 agent
     ax[0].plot(range(args.time + 1), avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])], '--') # should we really do argmin here?
     ax[0].set_xlabel("Time")
     ax[0].set_ylabel("Expected Cumulative Regret")
-    labels = ["Agent " + str(i) for i in range(args.numAgents)]
+    labels = ["Agent " + str(i) for i in range(numAgents)]
     labels.append('UCB1')
     ax[0].legend(labels)
     if G.number_of_nodes() <= 10:
