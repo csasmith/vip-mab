@@ -67,7 +67,7 @@ class UCB1:
     def ucb(self, t, n):
         ''' UCB1 upper confidence bound '''
 
-        return np.sqrt((2*np.log(t))/(n))
+        return np.sqrt((2*np.log(t))/n)
 
     def run(self):
         ''' Run the UCB1 algorithm
@@ -120,7 +120,7 @@ class UCB1:
                 # Update variables
                 for arm in range(M):
                     if arm == candidate:
-                        n[t+1][agent][arm] += 1
+                        n[t+1][agent][arm] = n[t][agent][arm] + 1
                         x[t+1][agent][arm] = ((x[t][agent][arm] * n[t][agent][arm]) + reward) / n[t+1][agent][arm]
                     else:
                         n[t+1][agent][arm] = n[t][agent][arm]
