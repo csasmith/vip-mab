@@ -119,7 +119,8 @@ class Dec_UCB:
                 else:
                     weight = 0
                     for neighbor in self.neighbors[i]:
-                        weight += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
+                        if neighbor != i:
+                            weight += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
                     weight = 1 - weight
                     W[i][j] = weight
         return W
@@ -224,7 +225,7 @@ class Dec_UCB:
                         x[t+1][agent][arm] = x[t][agent][arm]
                     # update z and m, these require looping over an agent's neighborhood
                     zsum = 0 # weighted summation portion of updated z value
-                    for neighbor in neighbors[agent]: #TODO: make weights a NxN array
+                    for neighbor in neighbors[agent]:
                         w = 1 / num_neighbors[agent] if opcode == 1 else W[agent][neighbor]
                         zsum += (w * z[t][neighbor][arm])
                         m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])

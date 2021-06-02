@@ -26,7 +26,7 @@ import time
 # T = 1000
 M = 5
 N = 10
-E = 5
+E = 1
 T = 1000
 distribs = np.zeros((N,M))
 for i in range(len(distribs)):
@@ -150,7 +150,8 @@ for epoch in range(E):
                         else:
                             w = 0
                             for neighbor in neighbors[agent]:
-                                w += 1 / max(num_neighbors[agent], num_neighbors[neighbor])
+                                if neighbor != agent:
+                                    w += 1 / max(num_neighbors[agent], num_neighbors[neighbor])
                             w = 1 - w
                         # w = num_neighbors[agent]
                         # if num_neighbors[neighbor] > w:
