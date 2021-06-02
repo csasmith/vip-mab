@@ -1,12 +1,32 @@
 ''' Perform desired Dec_UCB simulations from standard input '''
 
 from Dec_UCB import Dec_UCB
+from UCB1 import UCB1
 import argparse
 import networkx as nx
 import numpy as np
 import scipy.stats as sps
 import random
 import matplotlib.pyplot as plt
+
+def generate_random_graph(size, type):
+    if type == 'undirected':
+        G = nx.fast_gnp_random_graph(size, 0.5, directed=False)
+        while not nx.is_connected(G):
+            G = nx.fast_gnp_random_graph(size, 0.5, directed=False)
+    else:
+        G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
+        if type == 'strong':
+            while not nx.is_strongly_connected(G):
+                G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
+        else:
+            while not nx.is_weakly_connected(G):
+                G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
+    # add self-loops
+    nodes = list(G.nodes)
+    for i in nodes:
+        G.add_edge(i,i) 
+    return G
 
 # parse arguments from standard input
 parser = argparse.ArgumentParser()
@@ -17,7 +37,6 @@ group.add_argument('-f', '--inputFile', help="text file path containing a Networ
         "have a self-loop. Additionally, the graph must match the type parameter")
 parser.add_argument('type', choices=['strong', 'weak', 'undirected'], help="Graph type must " + 
         "be either strongly connected, weakly connected, or undirected connected")
-# changed M to numArms to match with below usage
 parser.add_argument('numArms', type=int, default='6', help="Number of arms")
 parser.add_argument('setting', choices=['homogeneous', 'heterogeneous'], help="Arm distributions can " + 
         "be homogeneous or heterogeneous")
@@ -29,6 +48,10 @@ parser.add_argument('-s', '--stddev', type=float, default=0.05, help="Standard d
 parser.add_argument('-t', '--time', type=int, default=1000, help="Number of time steps")
 parser.add_argument('-e', '--epochs', type=int, default=100, help="Number of iterations " +  
         "that Dec_UCB is repeated for")
+parser.add_argument('--refreshMeans', action='store_true', help='If specified, a new set of arm_means ' +
+        'is generated every epoch')
+parser.add_argument('--refreshGraph', action='store_true', help='If specified, a new random graph is ' +
+        'generated every epoch')
 args = parser.parse_args()
 print(str(args))
 
@@ -65,41 +88,27 @@ if any(d not in supported_distributions for d in args.distributions):
     raise ValueError("distributions must belong to the currently supported distributions. " + 
         "Supported distributions: " + str(supported_distributions))
 
+# if file input provided, assume we don't want to refresh graph every epoch
+args.refreshGraph = True if args.inputFile else args.refreshGraph
+
 # randomly generate graph if -f option not used
 if args.numAgents:
-    if args.type == 'strong':
-        G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=True)
-        while not nx.is_strongly_connected(G):
-            G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=True)
-    if args.type == 'weak':
-        G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=True)
-        while not nx.is_weakly_connected(G):
-            G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=True)
-    if args.type == 'undirected':
-        G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=False)
-        while not nx.is_connected(G):
-            G = nx.fast_gnp_random_graph(args.numAgents, 0.5, directed=False)
-    # add self-loops
-    nodes = list(G.nodes)
-    for i in nodes:
-        G.add_edge(i,i)
+    G = generate_random_graph(args.numAgents, args.type)
 
 # get opcode from graph type
-if args.type == 'strong' or args.type == 'weak':
-    opcode = 1
+if args.type == 'strong' or args.type == 'weak' or args.numAgents == 1:
+    opcode = 1 # note if N=1 we do not want undirected weights so opcode = 1
 else:
     opcode = 2
 
 def set_distribution(d, j):
-    
-    # print('args.means[j] ' + str(args.means[j]) + ', and j is ' + str(j))
     if d == 'truncnorm':
         a = (0 - args.means[j]) / args.stddev
         b = (1 - args.means[j]) / args.stddev
         return sps.truncnorm(a, b, loc=args.means[j], scale=args.stddev)
     if d == 'bernoulli':
         return sps.bernoulli(args.means[j])
-    if d == 'beta':
+    if d == 'beta': # TODO: standard deviation...
         alpha = args.means[j] * (args.means[j] * (1 - args.means[j]) / args.stddev**2 - 1)
         beta = (1 - args.means[j]) * (args.means[j] * (1 - args.means[j]) / args.stddev**2 - 1)
         return sps.beta(alpha, beta)
@@ -129,39 +138,49 @@ print('max_mean ' + str(max(args.means)))
 print('distributions ' + str([[d.mean() for d in arr] for arr in distributions]))
 
 # run simulations
-if nx.number_of_nodes(G) <= 10: # if small graph, use same graph for all epochs
-    regrets = []
-    simulator = Dec_UCB(G, args.time, opcode, args.means, distributions)
-    for e in range(args.epochs):
-        regrets.append(simulator.run())
-        print('epoch: ' + str(e)) if e % 10 == 0 else None
-    regrets = np.asarray(regrets) # shape (E, N, T+1)
-    avg_regrets = regrets.mean(axis=0) # shape (N, T+1)
+regrets_Dec_UCB = []
+regrets_UCB1 = []
+simulator_Dec_UCB = Dec_UCB(G, args.time, opcode, args.means, distributions)
+simulator_UCB1 = UCB1(args.time, args.means, distributions, G.number_of_nodes())
+for e in range(args.epochs):
+    regrets_Dec_UCB.append(simulator_Dec_UCB.run())
+    regrets_UCB1.append(simulator_UCB1.run())
+    new_means = [random.uniform(0.05, 0.95) for x in range(0, args.numArms)] if args.refreshMeans else args.means
+    new_G = generate_random_graph(G.number_of_nodes(), args.type) if args.refreshGraph else G
+    simulator_Dec_UCB = Dec_UCB(new_G, args.time, opcode, new_means, distributions)
+    simulator_UCB1 = UCB1(args.time, new_means, distributions, G.number_of_nodes())
+    print('epoch: ' + str(e)) if e % 10 == 0 else None
+regrets_Dec_UCB = np.asarray(regrets_Dec_UCB)
+regrets_UCB1 = np.asarray(regrets_UCB1)
+avg_regrets_Dec_UCB = regrets_Dec_UCB.mean(axis=0)
+avg_regrets_UCB1 = regrets_UCB1.mean(axis=0)
 
+# plot results
+if args.refreshGraph or args.numAgents > 10: # plot worst Dec_UCB agent vs best UCB1 agent
+    plt.figure(figsize=(5,5))
+    plt.plot(range(args.time + 1), avg_regrets_Dec_UCB[np.argmax(avg_regrets_Dec_UCB[:, -1])])
+    plt.plot(range(args.time + 1), avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])])
+    plt.xlabel("Time")
+    plt.ylabel("Expected Cumulative Regret")
+    labels = ['Worst Decentralized Regret', 'Best UCB1 Regret']
+    plt.legend(labels)
+else: # plot all Dec_UCB agents against best UCB1 agent
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
     ax = axes.flatten()
-
-    for i in range(len(avg_regrets)):
-        ax[0].plot(range(args.time+1),avg_regrets[i])
-        # print(str(avg_regrets[i]))
-
-    #ax[0].plot(range(args.time+1),avg_regrets_2[0],'--')
-
+    for i in range(len(avg_regrets_Dec_UCB)):
+        ax[0].plot(range(args.time + 1), avg_regrets_Dec_UCB[i])
+    ax[0].plot(range(args.time + 1), avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])], '--') # should we really do argmin here?
     ax[0].set_xlabel("Time")
     ax[0].set_ylabel("Expected Cumulative Regret")
     labels = ["Agent " + str(i) for i in range(args.numAgents)]
-    #labels.append('UCB1')
+    labels.append('UCB1')
     ax[0].legend(labels)
+    if G.number_of_nodes() <= 10:
+        nx.draw_networkx(G, ax=ax[1], pos=nx.spring_layout(G))
+        ax[1].set_axis_off()
 
-    nx.draw_networkx(G, ax=ax[1], pos=nx.spring_layout(G))
-    ax[1].set_axis_off()
-
-    #plt.savefig("weakly_multi_3_distrib.eps", bbox_inches='tight')
-    plt.show()
-else:
-    print('large, use different graph for each epoch... unless specific graph was given')
-    # if file was given, we would probably want to use that for all simulations
-
+plt.show()
+    
 
 
 
