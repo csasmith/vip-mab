@@ -96,6 +96,7 @@ class Dec_UCB:
             neighbors.append(curr_neighbors)
         self.neighbors = neighbors
         self.num_neighbors = [sum(A.toarray()[:,i]) for i in range(self.N)] # get cardinality of neighbors for each agent
+        print('num_neighbors: ' + str(self.num_neighbors))
 
     def theorem1_ucb(self, t, n):
         ''' Upper confidence bound function corresponding to Theorem 1.'''
@@ -112,15 +113,16 @@ class Dec_UCB:
 
         # Theorem 1 weight
         if self.opcode == 1:
-            return 1 / self.num_neighbors[i]
-        
-        # Theorem 2 weight
-        if i != j:
-            return 1 / max(self.num_neighbors[i], self.num_neighbors[j])
-        w = 0
-        for neighbor in range(self.num_neighbors[i]):
-            w += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
-        return 1 - w
+            w = 1 / self.num_neighbors[i]
+        else: # Theorem 2 weight
+            if i != j:
+                w = 1 / max(self.num_neighbors[i], self.num_neighbors[j])
+            else:
+                w = 0
+                for neighbor in self.neighbors[i]:
+                    w += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
+                w = 1 - w
+        return w
 
 
 
@@ -172,13 +174,13 @@ class Dec_UCB:
         # main loop
         for t in range(1, T):
             for agent in range(N):
-                # if t < 10:
-                #     print('Agent ' + str(agent) + ' (T=' + str(t) + ')\n--------------')
-                #     print('n: ' + str(n[t][agent]))
-                #     print('X: ' + str(X[t][agent]))
-                #     print('x: ' + str(x[t][agent]))
-                #     print('m: ' + str(m[t][agent]))
-                #     print('z: ' + str(z[t][agent]))
+                if t < 10:
+                    print('Agent ' + str(agent) + ' (T=' + str(t) + ')\n--------------')
+                    print('n: ' + str(n[t][agent]))
+                    print('X: ' + str(X[t][agent]))
+                    print('x: ' + str(x[t][agent]))
+                    print('m: ' + str(m[t][agent]))
+                    print('z: ' + str(z[t][agent]))
                 # Choose arm
                 candidates = [] # candidate arms to choose from
                 Q = [] # corresponds to Q in paper
@@ -196,10 +198,10 @@ class Dec_UCB:
                     candidate = random.choice(candidates)
                     print('randomly chose candidate ' + str(candidate))
                 else:
-                    # print('Q ' + str(Q)) if t < 10 else None
+                    print('Q ' + str(Q)) if t < 10 else None
                     candidate = np.argmax(Q)
 
-                # print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
+                print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
 
                 # Sample arm
                 X[t+1][agent][candidate] = distributions[agent][candidate].rvs()
@@ -209,12 +211,13 @@ class Dec_UCB:
                 # print('received reward ' + str(rwds[t+1][agent]))
 
                 # Update local variables
+                print('agent, neighbors[agent]: ' + str(agent) + ', ' + str(neighbors[agent])) if t < 3 else None
                 for arm in range(M):
                     # update n and x
                     if arm == candidate:
                         n[t+1][agent][arm] = n[t][agent][arm] + 1
                         x_sums[agent][arm] = x_sums[agent][arm] + X[t+1][agent][arm]
-                        # print('x_sums: ' + str(x_sums[agent][arm])  + '\n--------------\n') if t < 10 else None
+                        # print('x_sums: ' + str(x_sums[agent][arm])) if t < 10 else None
                         x[t+1][agent][arm] = (1/n[t+1][agent][arm])*x_sums[agent][arm]
                     else:
                         n[t+1][agent][arm] = n[t][agent][arm]
@@ -223,9 +226,11 @@ class Dec_UCB:
                     zsum = 0 # weighted summation portion of updated z value
                     for neighbor in neighbors[agent]:
                         w = self.calculate_weight(agent, neighbor)
-                        zsum += w * z[t][neighbor][arm]
+                        print('w: ' + str(w)) if t < 3 else None
+                        zsum += (w * z[t][neighbor][arm])
                         m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])
                     z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm])
+                print('--------------\n') if t < 10 else None
         
         # Algorithm finished. Use reward data to calculate and format our return value
         rwds_tnspose = np.transpose(rwds) # transpose rwds to make it easier to plot
