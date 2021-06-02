@@ -135,7 +135,7 @@ else:
 
 print('args.means ' + str(args.means))
 print('max_mean ' + str(max(args.means)))
-print('distributions ' + str([[d.mean() for d in arr] for arr in distributions]))
+# print('distributions ' + str([[d.mean() for d in arr] for arr in distributions]))
 
 # run simulations
 regrets_Dec_UCB = []
@@ -154,6 +154,8 @@ regrets_Dec_UCB = np.asarray(regrets_Dec_UCB)
 regrets_UCB1 = np.asarray(regrets_UCB1)
 avg_regrets_Dec_UCB = regrets_Dec_UCB.mean(axis=0)
 avg_regrets_UCB1 = regrets_UCB1.mean(axis=0)
+
+print('ucb1 argmin regrets ' + str(avg_regrets_UCB1[np.argmin(avg_regrets_UCB1[:, -1])]))
 
 # plot results
 if args.refreshGraph or args.numAgents > 10: # plot worst Dec_UCB agent vs best UCB1 agent

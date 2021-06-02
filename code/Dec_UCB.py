@@ -74,7 +74,7 @@ class Dec_UCB:
         if nx.number_of_selfloops(G) != nx.number_of_nodes(G):
             raise ValueError("Every node should have a self-loop")
         
-        # TODO: more error checking on inputs (like type of graph with opcode)
+        # TODO: could do more error checking on inputs (like type of graph with opcode)
 
         self.G = G # networkx graph
         self.T = T # number of time steps
@@ -96,7 +96,6 @@ class Dec_UCB:
             neighbors.append(curr_neighbors)
         self.neighbors = neighbors
         self.num_neighbors = [sum(A.toarray()[:,i]) for i in range(self.N)] # get cardinality of neighbors for each agent
-        print('num_neighbors: ' + str(self.num_neighbors))
 
     def theorem1_ucb(self, t, n):
         ''' Upper confidence bound function corresponding to Theorem 1.'''
@@ -175,13 +174,14 @@ class Dec_UCB:
         # main loop
         for t in range(1, T):
             for agent in range(N):
-                if t < 10:
-                    print('Agent ' + str(agent) + ' (T=' + str(t) + ')\n--------------')
-                    print('n: ' + str(n[t][agent]))
-                    print('X: ' + str(X[t][agent]))
-                    print('x: ' + str(x[t][agent]))
-                    print('m: ' + str(m[t][agent]))
-                    print('z: ' + str(z[t][agent]))
+                # if t < 10:
+                #     print('Agent ' + str(agent) + ' (T=' + str(t) + ')\n--------------')
+                #     print('n: ' + str(n[t][agent]))
+                #     print('X: ' + str(X[t][agent]))
+                #     print('x: ' + str(x[t][agent]))
+                #     print('m: ' + str(m[t][agent]))
+                #     print('z: ' + str(z[t][agent]))
+                
                 # Choose arm
                 candidates = [] # candidate arms to choose from
                 Q = [] # corresponds to Q in paper
@@ -197,9 +197,9 @@ class Dec_UCB:
                         Q.append(q)
                 if len(candidates) > 0: # check decision making criteria
                     candidate = random.choice(candidates)
-                    print('randomly chose candidate ' + str(candidate))
+                    # print('randomly chose candidate ' + str(candidate))
                 else:
-                    print('Q ' + str(Q)) if t < 10 else None
+                    # print('Q ' + str(Q)) if t < 10 else None
                     candidate = np.argmax(Q)
 
                 # print('Chose arm ' + str(candidate)) if t < 10 or T - t < 10 else None
@@ -212,7 +212,7 @@ class Dec_UCB:
                 # print('received reward ' + str(rwds[t+1][agent]))
 
                 # Update local variables
-                print('agent, neighbors[agent]: ' + str(agent) + ', ' + str(neighbors[agent])) if t < 3 else None
+                # print('agent, neighbors[agent]: ' + str(agent) + ', ' + str(neighbors[agent])) if t < 3 else None
                 for arm in range(M):
                     # update n and x
                     if arm == candidate:
@@ -230,21 +230,17 @@ class Dec_UCB:
                         zsum += (w * z[t][neighbor][arm])
                         m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])
                     z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm])
-                    print('-') if t < 3 else None
-                print('--------------\n') if t < 10 else None
+                    # print('-') if t < 3 else None
+                # print('--------------\n') if t < 10 else None
         
         # Algorithm finished. Use reward data to calculate and format our return value
         rwds_tnspose = np.transpose(rwds) # transpose rwds to make it easier to plot
         agent_regrets = []
         max_mean = max(arm_means)
-        # print('arm means ' + str(arm_means))
-        # print('max_mean ' + str(max_mean))
-        # print('rwds_tnspose ' + str(rwds_tnspose))
         for agent in range(len(rwds_tnspose)):
             regret = []
             for t in range(len(rwds_tnspose[agent])):
                 avg = np.sum(rwds_tnspose[agent][0:t+1]) / (t+1)
-                # print(str(avg))
                 regret.append(max_mean - avg)
             regret = np.cumsum(regret)
             agent_regrets.append(regret)
