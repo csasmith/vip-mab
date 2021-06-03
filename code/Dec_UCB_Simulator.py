@@ -20,7 +20,7 @@ def generate_random_graph(size, type):
             while not nx.is_strongly_connected(G):
                 G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
         else:
-            while not nx.is_weakly_connected(G):
+            while nx.is_strongly_connected or not nx.is_weakly_connected(G):
                 G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
     # add self-loops
     nodes = list(G.nodes)
@@ -68,7 +68,7 @@ if args.inputFile:
         G = nx.read_multiline_adjlist(args.inputFile, create_using=nx.DiGraph)
     if args.type == 'strong' and not nx.is_strongly_connected(G):
         raise TypeError("Graph type must match type argument")
-    if args.type == 'weak' and not nx.is_weakly_connected(G):
+    if args.type == 'weak' and not nx.is_weakly_connected(G) or nx.is_strongly_connected():
         raise TypeError("Graph type must match type argument")
     if args.type == 'undirected' and not nx.is_connected(G):
         raise TypeError("Graph type must match type argument")
