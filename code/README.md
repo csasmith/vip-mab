@@ -6,6 +6,20 @@ Official implementation of the Dec_UCB algorithm (Dec_UCB.py), and wrapper code 
 
 ### Requirements
 
+A requirements.txt file has been provided for quick setup of dependencies. To use this file (Anaconda environment is used as an example), navigate in a terminal to the directory containing requirements.txt and execute the following commands, replacing `<env_name>` with the name of your new virtual environment:
+
+`$ conda create -n <env_name> python=3.7`
+
+`$ conda activate <env_name>`
+
+`$ pip install -r requirements.txt`
+
+If this does not work, or you would prefer not to go the virtual environment route, just be aware that to run the code you need Python 3 (development was completed with Python 3.7+) installed along with the following packages:
+- networkx
+- numpy
+- scipy
+- matplotlib
+
 ### Usage
 
 ### Reproducing Simulations
