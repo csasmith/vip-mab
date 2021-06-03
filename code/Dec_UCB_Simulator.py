@@ -20,7 +20,7 @@ def generate_random_graph(size, type):
             while not nx.is_strongly_connected(G):
                 G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
         else:
-            while nx.is_strongly_connected or not nx.is_weakly_connected(G):
+            while nx.is_strongly_connected(G) or not nx.is_weakly_connected(G):
                 G = nx.fast_gnp_random_graph(size, 0.5, directed=True)
     # add self-loops
     nodes = list(G.nodes)
@@ -60,7 +60,7 @@ print(str(args))
 if args.means == None:
     args.means=[random.uniform(0.05, 0.95) for x in range(0, args.numArms)]
 
-# additional validation - any validation that appears to be missing is most likely in Dec_UCB.py
+# additional validation - any validation that appears to be missing is in Dec_UCB.py
 if args.inputFile:
     if args.type == 'undirected':
         G = nx.read_multiline_adjlist(args.inputFile)
@@ -106,15 +106,15 @@ def set_distribution(d, j, means, stddev):
         return sps.truncnorm(a, b, loc=means[j], scale=stddev)
     if d == 'bernoulli':
         return sps.bernoulli(means[j])
-    if d == 'beta': # TODO: either make stddev for beta 0.05, or mu(1-mu)
-        alpha = means[j] * (means[j] * (1 - means[j]) / stddev**2 - 1)
-        beta = (1 - means[j]) * (means[j] * (1 - means[j]) / stddev**2 - 1)
+    if d == 'beta':
+        alpha = means[j] * (means[j] * (1 - means[j]) / 0.05**2 - 1)
+        beta = (1 - means[j]) * (means[j] * (1 - means[j]) / 0.05**2 - 1)
         return sps.beta(alpha, beta)
     if d == 'uniform':
-        # we wish to obtain a uniform distribution given a certain mean
-        # to do this, we pick the widest uniform distribution possible still in [0,1]
+        # we wish to obtain a uniform distribution given a certain mean, and we do this by
+        # picking the widest uniform distribution possible still in [0,1] with the given mean
         radius = min(means[j], abs(1 - means[j]))
-        return sps.uniform(loc=means[j] - radius, scale=2*radius) # should be [loc, loc + scale]
+        return sps.uniform(loc=means[j] - radius, scale=2*radius)
 
 def generate_distributions(setting, numArms, numAgents, distributionOptions, means, stddev):
     distributions = [[None for i in range(numArms)] for i in range(numAgents)]
@@ -131,9 +131,6 @@ def generate_distributions(setting, numArms, numAgents, distributionOptions, mea
     return distributions
 
 distributions = generate_distributions(args.setting, args.numArms, numAgents, args.distributions, args.means, args.stddev)
-
-print('args.distributions ' + str(args.distributions))
-# print('distributions ' + str([[d.mean() for d in arr] for arr in distributions]))
 
 # run simulations
 regrets_Dec_UCB = []
@@ -178,7 +175,6 @@ else: # plot all Dec_UCB agents against best UCB1 agent
     if G.number_of_nodes() <= 10:
         nx.draw_networkx(G, ax=ax[1], pos=nx.spring_layout(G))
         ax[1].set_axis_off()
-
 plt.show()
     
 

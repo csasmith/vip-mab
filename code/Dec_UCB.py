@@ -73,8 +73,6 @@ class Dec_UCB:
         
         if nx.number_of_selfloops(G) != nx.number_of_nodes(G):
             raise ValueError("Every node should have a self-loop")
-        
-        # TODO: could do more error checking on inputs (like type of graph with opcode)
 
         self.G = G # networkx graph
         self.T = T # number of time steps
