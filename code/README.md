@@ -15,12 +15,20 @@ A requirements.txt file has been provided for quick setup of dependencies. To us
 `$ pip install -r requirements.txt`
 
 If this does not work, or you would prefer not to go the virtual environment route, just be aware that to run the code you need Python 3 (development was completed with Python 3.7+) installed along with the following packages:
-- networkx
-- numpy
-- scipy
-- matplotlib
+- [networkx](https://networkx.org/)
+- [numpy](https://numpy.org/)
+- [scipy](https://www.scipy.org/)
+- [matplotlib](https://matplotlib.org/)
 
 ### Usage
+
+`Dec_UCB_Simulator.py` is a script that runs simulations specified by command line arguments. This script was used to generate the simulations presented in the main paper and appendix. For example, to run a simulation on a size 4 weakly connected graph with 5 arms and homogeneous reward distributions for 100 iterations, 1000 time steps each iteration, execute the following command:
+
+`$ python Dec_UCB_Simulator.py weak 5 homogeneous`
+
+A full list of usage instructions can be found by running `$ python Dec_UCB_Simulator.py --help`
+
+In the event that the simulation options of `Dec_UCB_Simulator.py` do not suit your needs, `Dec_UCB.py` is the main implementation of the Dec_UCB algorithm that `Dec_UCB_Simulator.py` is simply a wrapper for.
 
 ### Reproducing Simulations
 
