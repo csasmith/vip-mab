@@ -54,7 +54,6 @@ parser.add_argument('--refreshMeans', action='store_true', help='If specified, a
 parser.add_argument('--refreshGraph', action='store_true', help='If specified, a new random graph is ' +
         'generated every epoch')
 args = parser.parse_args()
-print(str(args))
 
 # if no means provided, have to generate defaults here once numArms is known
 if args.means == None:
