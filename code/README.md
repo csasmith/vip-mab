@@ -25,6 +25,7 @@ If this does not work, or you would prefer not to go the virtual environment rou
 ### Reproducing Simulations
 
 Small
+
 python Dec_UCB_Simulator.py strong 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f strongly.adjlist
 
 python Dec_UCB_Simulator.py undirected 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f undirected.adjlist
@@ -32,6 +33,7 @@ python Dec_UCB_Simulator.py undirected 6 heterogeneous -d bernoulli beta truncno
 python Dec_UCB_Simulator.py weak 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f weakly.adjlist
 
 Large
+
 python Dec_UCB_Simulator.py strong 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50
 
 python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50
@@ -39,6 +41,7 @@ python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli beta truncn
 python Dec_UCB_Simulator.py weak 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50
 
 One Distribution:
+
 python Dec_UCB_Simulator.py strong 6 homogeneous -d beta --refreshMeans -f onedist-strong.adjlist
 
 python Dec_UCB_Simulator.py undirected 6 homogeneous -d beta --refreshMeans -f onedist-undirected.adjlist
@@ -46,6 +49,7 @@ python Dec_UCB_Simulator.py undirected 6 homogeneous -d beta --refreshMeans -f o
 python Dec_UCB_Simulator.py weak 6 homogeneous -d beta --refreshMeans -f onedist-weak.adjlist
 
 Three Distribution:
+
 python Dec_UCB_Simulator.py strong 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
 
 python Dec_UCB_Simulator.py strong 10 heterogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
@@ -57,3 +61,13 @@ python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli uniform tru
 python Dec_UCB_Simulator.py weak 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
 
 python Dec_UCB_Simulator.py weak 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+
+Selected Graphs (Figures 11-14):
+
+python Dec_UCB_Simulator.py undirected 6 heterogeneous -f undirected_two_neighbors.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90
+
+python Dec_UCB_Simulator.py strong 6 heterogeneous -f strongly.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90
+
+python Dec_UCB_Simulator.py undirected 6 heterogeneous -f undirected_path.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90
+
+python Dec_UCB_Simulator.py weak 6 heterogeneous -f weakly_path.adjlist -d bernoulli truncnorm beta --refreshMeans
