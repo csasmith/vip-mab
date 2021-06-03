@@ -3,8 +3,6 @@
 import numpy as np
 import random
 
-from scipy.stats import distributions
-
 class UCB1:
     ''' Create a custom problem instance and run UCB1 on the instance
 
