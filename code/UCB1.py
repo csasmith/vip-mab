@@ -1,7 +1,6 @@
 ''' Runs the UCB1 algorithm for comparison with Dec_UCB  '''
 
 import numpy as np
-import random
 
 class UCB1:
     ''' Create a custom problem instance and run UCB1 on the instance
