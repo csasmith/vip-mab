@@ -24,9 +24,9 @@ import time
 # N = 50 # number of agents
 # E = 100 # number of epochs
 # T = 1000
-M = 5
-N = 10
-E = 1
+M = 3
+N = 11
+E = 4
 T = 1000
 distribs = np.zeros((N,M))
 for i in range(len(distribs)):
@@ -37,7 +37,7 @@ for i in range(len(distribs)):
         elif r < 0.66:
             distribs[i][j] = 2
 
-graph_type = "undirected"
+graph_type = "weak"
 graphs = []
 for e in range(E):
     G = nx.fast_gnp_random_graph(N, 0.5,directed=False) # undirected
