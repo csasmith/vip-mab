@@ -1,8 +1,6 @@
-- following readme template https://github.com/paperswithcode/releasing-research-code/blob/master/templates/README.md
-
 ## Decentralized Multi-Armed Bandit Can Outperform Classic Upper Confidence Bound (NeurIPS 2021 Submission)
 
-Official implementation of the Dec_UCB algorithm (Dec_UCB.py), and wrapper code (Dec_UCB_Simulator.py) used to run simulations found in the paper and compare to the classic UCB1 algorithm (UCB1.py).
+Official implementation of the Dec_UCB algorithm, and code used to generate simulations found in the paper.
 
 ### Requirements
 
@@ -22,60 +20,68 @@ If this does not work, or you would prefer not to go the virtual environment rou
 
 ### Usage
 
-`Dec_UCB_Simulator.py` is a script that runs simulations specified by command line arguments. This script was used to generate the simulations presented in the main paper and appendix. For example, to run a simulation on a size 4 weakly connected graph with 5 arms and homogeneous reward distributions for 100 iterations, 1000 time steps each iteration, execute the following command:
+`Dec_UCB_Simulator.py` is a script that runs simulations specified by command line arguments. This script was used to generate the simulations presented in the main paper and appendix. For example, to run a simulation on a size 4 weakly connected graph with 5 arms and homogeneous reward distributions from Bernoulli and uniform distributions, for 100 iterations, 1000 time steps each iteration, execute the following command:
 
-`$ python Dec_UCB_Simulator.py weak 5 homogeneous`
+`$ python Dec_UCB_Simulator.py weak 5 homogeneous -d bernoulli uniform -N 4`
 
-A full list of usage instructions can be found by running `$ python Dec_UCB_Simulator.py --help`
+Detailed usage instructions can be found by running `$ python Dec_UCB_Simulator.py --help`
 
-In the event that the simulation options of `Dec_UCB_Simulator.py` do not suit your needs, `Dec_UCB.py` is the main implementation of the Dec_UCB algorithm that `Dec_UCB_Simulator.py` is simply a wrapper for.
+In the event that the simulation options of `Dec_UCB_Simulator.py` are not flexible enough, `Dec_UCB.py` is the main implementation of the Dec_UCB algorithm that `Dec_UCB_Simulator.py` is simply a wrapper for. `Dec_UCB.py` handles fairly arbitrary inputs, so custom simulations can be easily written.
 
 ### Reproducing Simulations
 
-Small
+Below is a list of all the commands necessary to reproduce the results found in the main paper and Appendix. Commands are in the order in which their corresponding figures appear in the paper.
 
-python Dec_UCB_Simulator.py strong 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f strongly.adjlist
+**Small-size Graphs (Figures 1-3)**
 
-python Dec_UCB_Simulator.py undirected 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f undirected.adjlist
+`$ python Dec_UCB_Simulator.py strong 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f strongly.adjlist`
 
-python Dec_UCB_Simulator.py weak 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f weakly.adjlist
+`$ python Dec_UCB_Simulator.py undirected 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f undirected.adjlist`
 
-Large
+`$ python Dec_UCB_Simulator.py weak 6 heterogeneous -d bernoulli beta truncnorm --refreshMeans -f weakly.adjlist`
 
-python Dec_UCB_Simulator.py strong 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50
+**Large-scale Graphs (Figure 4)**
 
-python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50
+`$ python Dec_UCB_Simulator.py strong 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50`
 
-python Dec_UCB_Simulator.py weak 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50
+`$ python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50`
 
-One Distribution:
+`$ python Dec_UCB_Simulator.py weak 10 heterogeneous -d bernoulli beta truncnorm --refreshMeans --refreshGraph -N 50`
 
-python Dec_UCB_Simulator.py strong 6 homogeneous -d beta --refreshMeans -f onedist-strong.adjlist
+**Homogeneous vs. Heterogeneous: One Distribution (Figures 5-7)**
 
-python Dec_UCB_Simulator.py undirected 6 homogeneous -d beta --refreshMeans -f onedist-undirected.adjlist
+`$ python Dec_UCB_Simulator.py strong 6 homogeneous -d beta -s 0.01 0.05 0.1 --refreshMeans --refreshGraph -N 6`
 
-python Dec_UCB_Simulator.py weak 6 homogeneous -d beta --refreshMeans -f onedist-weak.adjlist
+`$ python Dec_UCB_Simulator.py strong 6 heterogeneous -d beta -s 0.01 0.05 0.1 --refreshMeans --refreshGraph -N 6`
 
-Three Distribution:
+`$ python Dec_UCB_Simulator.py undirected 6 homogeneous -d beta -s 0.01 0.05 0.1 --refreshMeans --refreshGraph -N 6`
 
-python Dec_UCB_Simulator.py strong 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+`$ python Dec_UCB_Simulator.py undirected 6 heterogeneous -d beta -s 0.01 0.05 0.1 --refreshMeans --refreshGraph -N 6`
 
-python Dec_UCB_Simulator.py strong 10 heterogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+`$ python Dec_UCB_Simulator.py weak 6 homogeneous -d beta -s 0.01 0.05 0.1 --refreshMeans --refreshGraph -N 6`
 
-python Dec_UCB_Simulator.py undirected 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+`$ python Dec_UCB_Simulator.py weak 6 heterogeneous -d beta -s 0.01 0.05 0.1 --refreshMeans --refreshGraph -N 6`
 
-python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+**Homogeneous vs. Heterogeneous: Three Distributions (Figures 8-10)**
 
-python Dec_UCB_Simulator.py weak 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+`$ python Dec_UCB_Simulator.py strong 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15`
 
-python Dec_UCB_Simulator.py weak 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15
+`$ python Dec_UCB_Simulator.py strong 10 heterogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15`
 
-Selected Graphs (Figures 11-14):
+`$ python Dec_UCB_Simulator.py undirected 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15`
 
-python Dec_UCB_Simulator.py undirected 6 heterogeneous -f undirected_two_neighbors.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90
+`$ python Dec_UCB_Simulator.py undirected 10 heterogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15`
 
-python Dec_UCB_Simulator.py strong 6 heterogeneous -f strongly.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90
+`$ python Dec_UCB_Simulator.py weak 10 homogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15`
 
-python Dec_UCB_Simulator.py undirected 6 heterogeneous -f undirected_path.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90
+`$ python Dec_UCB_Simulator.py weak 10 heterogeneous -d bernoulli uniform truncnorm -s 0.2 --refreshMeans --refreshGraph -N 15`
 
-python Dec_UCB_Simulator.py weak 6 heterogeneous -f weakly_path.adjlist -d bernoulli truncnorm beta --refreshMeans
+**Selected Graphs (Figures 11-14)**
+
+`$ python Dec_UCB_Simulator.py undirected 6 heterogeneous -f undirected_two_neighbors.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90`
+
+`$ python Dec_UCB_Simulator.py strong 6 heterogeneous -f strongly.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90`
+
+`$ python Dec_UCB_Simulator.py undirected 6 heterogeneous -f undirected_path.adjlist -d bernoulli truncnorm beta -m 0.10 0.25 0.45 0.65 0.75 0.90`
+
+`$ python Dec_UCB_Simulator.py weak 6 heterogeneous -f weakly_path.adjlist -d bernoulli truncnorm beta --refreshMeans`
