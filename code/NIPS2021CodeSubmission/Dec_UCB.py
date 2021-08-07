@@ -105,24 +105,27 @@ class Dec_UCB:
 
         return np.sqrt((3 * np.log(t)) / ((num_neighbors * n)))
 
-    def calculate_undirected_weights(self):
-        ''' Calculates weights as a NxN array. '''
+    def calculate_weights(self):
+        ''' Returns weight matrix W corresponding to Theorem 1 or Theorem 2, depending on opcode. '''
 
-        W = np.zeros((self.N, self.N))
-        for i in range(self.N):
-            for j in range(self.N):
-                if i != j:
-                    W[i][j] = 1 / max(self.num_neighbors[i], self.num_neighbors[j])
-                else:
-                    weight = 0
-                    for neighbor in self.neighbors[i]:
-                        if neighbor != i:
-                            weight += (1 / max(self.num_neighbors[i], self.num_neighbors[neighbor]))
-                    weight = 1 - weight
-                    W[i][j] = weight
+        W = np.zeros((self.N, self.N)) # W[i][j] = 0 if j not neighbor of i
+        if self.opcode == 1:
+            for agent in range(self.N):
+                for neighbor in self.neighbors[agent]:
+                    W[agent][neighbor] = 1 / self.num_neighbors[agent]
+        else:
+            for agent in range(self.N):
+                for neighbor in self.neighbors[agent]:
+                    if agent != neighbor:
+                        W[agent][neighbor] = 1 / max(self.num_neighbors[agent], self.num_neighbors[neighbor])
+                    else:
+                        weight = 0
+                        for nbor in self.neighbors[agent]:
+                            if nbor != agent:
+                                weight += (1 / max(self.num_neighbors[agent], self.num_neighbors[nbor]))
+                        weight = 1 - weight
+                        W[agent][neighbor] = weight
         return W
-
-
 
     def run(self):
         ''' Run the Dec_UCB algorithm. 
@@ -153,7 +156,12 @@ class Dec_UCB:
         x = [np.zeros((N,M)) for t in range(T+1)] # local sample means
         z = [np.zeros((N,M)) for t in range(T+1)] # local estimates of global arm sample means
         
-        W = self.calculate_undirected_weights() # undirected weights NxN array
+        # get weights matrix and second largest eigenvalue rho2
+        W = self.calculate_weights() 
+        eigenvals, _ = np.linalg.eig(W)
+        eigenvals.sort()
+        rho2 = eigenvals[-2] if len(eigenvals) > 1 else eigenvals[0]
+
         x_sums = np.zeros((N,M)) # used to calculate running sums of rewards
         rwds = [np.zeros(N) for t in range(T+1)] # create rwds array to hold all rewards each agent receives
 
@@ -218,7 +226,7 @@ class Dec_UCB:
                     # update z and m, these require looping over an agent's neighborhood
                     zsum = 0 # weighted summation portion of updated z value
                     for neighbor in neighbors[agent]:
-                        w = 1 / num_neighbors[agent] if opcode == 1 else W[agent][neighbor]
+                        w = W[agent][neighbor]
                         zsum += (w * z[t][neighbor][arm])
                         m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])
                     z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm])
