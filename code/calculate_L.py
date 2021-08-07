@@ -38,7 +38,7 @@ def generate_random_graph(size, graph_type, probability):
             while not nx.is_strongly_connected(G):
                 G = nx.fast_gnp_random_graph(size, probability, directed=True)
         else:
-            while nx.is_strongly_connected(G) or not nx.is_weakly_connected(G):
+            while (nx.is_strongly_connected(G) and not nx.is_weakly_connected(G)) or not nx.is_weakly_connected(G):
                 G = nx.fast_gnp_random_graph(size, probability, directed=True)
     # add self-loops
     nodes = list(G.nodes)
@@ -57,8 +57,8 @@ def find_sol(rho, N):
     return max(t1, t2)
 
 #set parameters here
-N = 250 # slows down a bunch after 200 or so
-graph_type = 'undirected' # options: 'undirected', 'strong', 'weak'
+N = 200 # slows down a bunch after 200 or so
+graph_type = 'weak' # options: 'undirected', 'strong', 'weak'
 probability = 0.1
 
 theorem = 2 if graph_type == 'undirected' else 1
@@ -100,11 +100,12 @@ plt.figure(figsize=(8,5))
 plt.plot(range(N+1), L)
 plt.xlabel('Graph Size (N)')
 plt.ylabel('L')
-title = 'L vs. N : p=' + str(probability)
+plt.ylim(bottom=0, top=350000)
+title = 'L vs. N : p=' + str(probability) + "; " + graph_type
 plt.title(title)
-plt.show()
-fname = 'LvN-' + str(N) + '-' + str(probability) + '-' + str(graph_type) + '.png'
+fname = 'LvN-' + str(N) + '-' + str(int(probability*100)) + '-' + str(graph_type) + '.png' #
 plt.savefig(fname)
+plt.show()
 
 
 
