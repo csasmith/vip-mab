@@ -36,6 +36,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 [Forced-Exploration Based Algorithms for Playing in Bandits with Large Action Sets [Yadkori]](https://yasin-abbasi.github.io/Yasin-MSc-Thesis.pdf) 
 
 [Contextual Markov Decision Processes[Hallak, Castro, Mannor]](https://arxiv.org/abs/1502.02259)
+
+[Neural Contextual Bandits with UCB-based Exploration [Zhou, Li, Gou]](https://arxiv.org/pdf/1911.04462.pdf)
 <br><br>
 
 ### Nonstationary Bandit Resources
