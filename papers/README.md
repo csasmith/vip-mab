@@ -4,6 +4,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 
 ### Classic K-Armed Bandit Papers and Resources
 
+[Asymptotically Efficient Adaptive Allocation Rules [Lai, Robbins]](https://core.ac.uk/download/pdf/82425825.pdf)
+
 [Finite-time Analysis of the Multiarmed Bandit Problem [Auer, Cesa-Bianchi, Fischer]](https://people.eecs.berkeley.edu/~russell/classes/cs294/s11/readings/Auer+al:2002.pdf) | [Alt](https://link.springer.com/article/10.1023/A:1013689704352)
 
 [Regret Analysis of Stochastic and Nonstochastic Multi-armed Bandit Problems [Bubeck, Cesa-Bianchi]](https://arxiv.org/abs/1204.5721)
