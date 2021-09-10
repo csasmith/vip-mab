@@ -25,6 +25,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 
 [Contextual Bandits with Linear Payoff Functions [Chu, Li, Reyzin, Schapire]](http://proceedings.mlr.press/v15/chu11a.html) | [Alt](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/camera-ready-4.pdf)
 
+[A Contextual-Bandit Approach to Personalized News Article Recommendation [Li, Chu, Langford, Shapire]](https://arxiv.org/abs/1003.0146)
+
 [Stochastic Linear Optimization under Bandit Feedback [Dani, Hayes, Kakade]](https://homes.cs.washington.edu/~sham/papers/ml/bandit_linear_long.pdf) | [Alt](https://www.semanticscholar.org/paper/Stochastic-Linear-Optimization-under-Bandit-Dani-Hayes/551e19e5113cdff60a3c545d684fc4b9eb9a7306)
 
 [Differentially-Private Federated Linear Bandits [Dubey, Pentland]](https://arxiv.org/abs/2010.11425)
