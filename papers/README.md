@@ -82,6 +82,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 [Delay and Cooperation in Nonstochastic Bandits [Cesa-Bianchi, Gentile, Mansour, Minora]](https://arxiv.org/abs/1602.04741)
 
 [Collaborative Multi-Agent Multi-Armed Bandit Learning for Small-Cell Caching [Xu, Tao, Shen]](https://ieeexplore.ieee.org/abstract/document/8964583)
+
+[Fast Distributed Bandits for Online Recommendation Systems [Mahadik, Wu, Li, Sabne]](https://arxiv.org/abs/2007.08061)
 <br><br>
 
 ### Differential Privacy Resources
