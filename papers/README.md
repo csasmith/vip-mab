@@ -104,6 +104,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 
 [Robust Stochastic Bandit Algorithms under Probabilistic Unbounded Adversarial Attack [Guan, Ji, et al.]](https://arxiv.org/abs/2002.07214)
 
+[Robust Bandit Learning with Imperfect Context [Yang, Ren]](https://arxiv.org/pdf/2102.05018.pdf)
+
 ### On Bandit Applications and Implementations
 
 [A Survey on Practical Applications of Multi-Armed and Contextual Bandits [Bouneffouf, Rish]](https://arxiv.org/pdf/1904.10040.pdf)
