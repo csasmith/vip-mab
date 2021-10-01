@@ -100,6 +100,10 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 - Not strictly about differential privacy, but provides great motivation/applications for DP algorithms
 <br><br>
 
+### Secure/Robust Bandits
+
+[Robust Stochastic Bandit Algorithms under Probabilistic Unbounded Adversarial Attack [Guan, Ji, et al.]](https://arxiv.org/abs/2002.07214)
+
 ### On Bandit Applications and Implementations
 
 [A Survey on Practical Applications of Multi-Armed and Contextual Bandits [Bouneffouf, Rish]](https://arxiv.org/pdf/1904.10040.pdf)
