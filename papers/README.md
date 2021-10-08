@@ -105,6 +105,7 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 [Robust Stochastic Bandit Algorithms under Probabilistic Unbounded Adversarial Attack [Guan, Ji, et al.]](https://arxiv.org/abs/2002.07214)
 
 [Robust Bandit Learning with Imperfect Context [Yang, Ren]](https://arxiv.org/pdf/2102.05018.pdf)
+
 [Exploiting Heterogeneity in Robust Federated Best-Arm Identification [Mitra, Hassani, Pappas]](https://arxiv.org/abs/2109.05700)
 
 ### On Bandit Applications and Implementations
