@@ -57,9 +57,9 @@ def find_sol(rho, N):
     return max(t1, t2)
 
 #set parameters here
-N = 200 # slows down a bunch after 200 or so
-graph_type = 'weak' # options: 'undirected', 'strong', 'weak'
-probability = 0.1
+N = 400 # slows down a bunch after 200 or so
+graph_type = 'undirected' # options: 'undirected', 'strong', 'weak'
+probability = 0.4
 
 theorem = 2 if graph_type == 'undirected' else 1
 L = [0 for n in range(N+1)] # store values of L in here
@@ -98,13 +98,16 @@ for n in range(1, N+1):
 # plot results
 plt.figure(figsize=(8,5))
 plt.plot(range(N+1), L)
+# line of best fit
+m, b = np.polyfit(range(N+1), L, 1)
+plt.plot(range(N+1), m*(range(N+1))+b)
 plt.xlabel('Graph Size (N)')
 plt.ylabel('L')
 plt.ylim(bottom=0, top=350000)
 title = 'L vs. N : p=' + str(probability) + "; " + graph_type
 plt.title(title)
 fname = 'LvN-' + str(N) + '-' + str(int(probability*100)) + '-' + str(graph_type) + '.png' #
-plt.savefig(fname)
+# plt.savefig(fname)
 plt.show()
 
 
