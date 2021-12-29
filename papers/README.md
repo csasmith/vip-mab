@@ -86,6 +86,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 [Fast Distributed Bandits for Online Recommendation Systems [Mahadik, Wu, Li, Sabne]](https://arxiv.org/abs/2007.08061)
 
 [Distributed Clustering of Linear Bandits in Peer to Peer Networks [Korda, Szorenyi, Li]](https://arxiv.org/pdf/1604.07706.pdf)
+
+[Robust Multi-Agent Multi-Armed Bandits](https://arxiv.org/abs/2007.03812)
 <br><br>
 
 ### Differential Privacy Resources
@@ -107,6 +109,8 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 [Robust Bandit Learning with Imperfect Context [Yang, Ren]](https://arxiv.org/pdf/2102.05018.pdf)
 
 [Exploiting Heterogeneity in Robust Federated Best-Arm Identification [Mitra, Hassani, Pappas]](https://arxiv.org/abs/2109.05700)
+
+[Robust Multi-Agent Multi-Armed Bandits](https://arxiv.org/abs/2007.03812)
 
 ### On Bandit Applications and Implementations
 
