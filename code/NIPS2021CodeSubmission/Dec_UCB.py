@@ -170,7 +170,7 @@ class Dec_UCB:
             for arm in range(M):
                 reward = distributions[agent][arm].rvs()
                 # print('received (init) reward ' + str(X[1][agent][arm]))
-                n[1][agent][arm] += 1
+                n[1][agent][arm] += 1 # TODO: shouldn't these all be zero?
                 m[1][agent][arm] += 1
                 z[1][agent][arm] = reward
                 x[1][agent][arm] = reward
@@ -228,7 +228,7 @@ class Dec_UCB:
                     for neighbor in neighbors[agent]:
                         w = W[agent][neighbor]
                         zsum += (w * z[t][neighbor][arm])
-                        m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm])
+                        m[t+1][agent][arm] = max(n[t+1][agent][arm], m[t][neighbor][arm]) # TODO: pretty sure this is done incorrectly
                     z[t+1][agent][arm] = (zsum + x[t+1][agent][arm] - x[t][agent][arm])
                 # print('--------------\n') if t < 10 else None
         
