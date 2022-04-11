@@ -110,7 +110,9 @@ Collection of relevant literature on the Multi-Armed Bandit problem and its vari
 
 [Exploiting Heterogeneity in Robust Federated Best-Arm Identification [Mitra, Hassani, Pappas]](https://arxiv.org/abs/2109.05700)
 
-[Robust Multi-Agent Multi-Armed Bandits](https://arxiv.org/abs/2007.03812)
+[Robust Multi-Agent Multi-Armed Bandits [Vial, Shakkottai, Srikant]](https://arxiv.org/abs/2007.03812)
+
+[Robust Multi-Agent Bandits Over Undirected Graphs [Vial, Shakkottai, Srikant]](https://arxiv.org/pdf/2203.00076.pdf)
 
 ### On Bandit Applications and Implementations
 
