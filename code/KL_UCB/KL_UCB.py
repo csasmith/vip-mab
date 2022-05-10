@@ -142,7 +142,7 @@ class KL_UCB:
             N[a] = N[a] + 1
             S[a] = S[a] + r
             exp_cum_rwd[t] = exp_cum_rwd[t-1] + self.means[a]
-        optimal_exp_cum_rwd = [(t+1) * self.means[optimal_arm] for t in range(T)]
+        optimal_exp_cum_rwd = [(t+1) * self.means[optimal_arm] for t in range(self.T)]
         regret = np.asarray(optimal_exp_cum_rwd) - np.asarray(exp_cum_rwd) # see definition of regret
         self.regret = regret
         return regret
