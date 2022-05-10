@@ -113,14 +113,14 @@ class KL_UCB:
         time_axis = list(range(self.T))
         coeff = 0
         for i in range(self.M):
-            if (i != optimal_arm): coeff += (rwd_means[optimal_arm] - rwd_means[i]) / (self.KL(rwd_means[i], rwd_means[optimal_arm]))
+            if (i != optimal_arm): coeff += (self.means[optimal_arm] - self.means[i]) / (self.KL(self.means[i], self.means[optimal_arm]))
         theoretical_regret_bounds = [coeff * np.log(t+1) for t in time_axis] # not sure if allowed to do this bc of lim sup, seems like it works tho
         plt.plot(time_axis, theoretical_regret_bounds, '--')
         plt.plot(time_axis, self.regret)
         plt.show()
 
     def run(self):
-        ''' Run the KL_UCB algorithm on the bandit problem instance helf by self
+        ''' Run the KL_UCB algorithm on the bandit problem instance held by self
 
             Return
             ------
@@ -148,12 +148,12 @@ class KL_UCB:
         return regret
 
 
-# test run
-T = 1000
-rwd_means = [.2, .3, .4, .5, .6]
-distributions = [sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))]
-kl = KL_UCB(T, distributions)
-kl.run()
-kl.plot_regret()
+# # test run
+# T = 1000
+# rwd_means = [.2, .3, .4, .5, .6]
+# distributions = [sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))]
+# kl = KL_UCB(T, distributions)
+# kl.run()
+# kl.plot_regret()
 
 
