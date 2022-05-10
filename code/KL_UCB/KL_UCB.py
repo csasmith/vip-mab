@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 class KL_UCB:
-    ''' Representation of a bandit problem and a method to run the KL_UCB algorithm on this problem
+    ''' Representation of a single agent bandit problem and a method to run the KL_UCB algorithm on this problem
 
         Attributes
         ----------
@@ -12,11 +12,11 @@ class KL_UCB:
         arm_distributions: A list of scipy.stats probability distributions bounded on [0,1]
         means: A list of arm means. Extracted from arm_distributions
         M: Number of arms. Extracted from length of arm_distributions
-        regret: A numpy ndarray of the expected regret from t=0 to t=T of the most recent algorithm run
+        regret: A 1xT numpy ndarray of the expected regret from the most recent algorithm run
     '''
 
     def __init__(self, T, arm_distributions):
-        ''' Construct a bandit problem instance 
+        ''' Construct a single agent bandit problem instance 
         
             Parameters
             ----------
@@ -72,6 +72,7 @@ class KL_UCB:
             k: The arm index we are computing an upper confidence bound for.
             t: The current time step.
             precision: Arbitrarily small convergence threshold
+            max_iterations: Limit on number of iterations Newton's method should run
             epsilon: A miscellaneous arbitrarily small limit
 
             Return
@@ -103,6 +104,21 @@ class KL_UCB:
         # if(not converged): print("Did not converge") 
         return q
 
+    def plot_regret(self):
+        ''' Plots regret of last run vs theoretical regret bounds 
+
+            Note: make sure KL_UCB.run() was called before calling this method
+        '''
+        optimal_arm = np.argmax(self.means)
+        time_axis = list(range(self.T))
+        coeff = 0
+        for i in range(self.M):
+            if (i != optimal_arm): coeff += (rwd_means[optimal_arm] - rwd_means[i]) / (self.KL(rwd_means[i], rwd_means[optimal_arm]))
+        theoretical_regret_bounds = [coeff * np.log(t+1) for t in time_axis] # not sure if allowed to do this bc of lim sup, seems like it works tho
+        plt.plot(time_axis, theoretical_regret_bounds, '--')
+        plt.plot(time_axis, self.regret)
+        plt.show()
+
     def run(self):
         ''' Run the KL_UCB algorithm on the bandit problem instance helf by self
 
@@ -131,23 +147,8 @@ class KL_UCB:
         self.regret = regret
         return regret
 
-    def plot_regret(self):
-        ''' Plots regret of last run vs theoretical regret bounds 
 
-            Note: make sure KL_UCB.run() was called before calling this method
-        '''
-        optimal_arm = np.argmax(self.means)
-        time_axis = list(range(self.T))
-        coeff = 0
-        for i in range(self.M):
-            if (i != optimal_arm): coeff += (rwd_means[optimal_arm] - rwd_means[i]) / (self.KL(rwd_means[i], rwd_means[optimal_arm]))
-        theoretical_regret_bounds = [coeff * np.log(t+1) for t in time_axis] # not sure if allowed to do this bc of lim sup, seems like it works tho
-        plt.plot(time_axis, theoretical_regret_bounds, '--')
-        plt.plot(time_axis, self.regret)
-        plt.show()
-
-
-# run
+# test run
 T = 1000
 rwd_means = [.2, .3, .4, .5, .6]
 distributions = [sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))]
