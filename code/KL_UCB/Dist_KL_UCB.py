@@ -4,47 +4,57 @@ import networkx as nx
 rng = np.random.default_rng(1)
 import matplotlib.pyplot as plt
 
-class DEC_KL_UCB:
+class Dist_KL_UCB:
     ''' Representation of a multi-agent bandit problem and a method to run the decentralized KL_UCB algorithm on this problem
 
         Attributes
         ----------
         G: An undirected NetworkX graph instance representing the network over which agents communicate.
             It is assumed each node already has a self-loop.
-        T: The number of time steps the Dec_KL_UCB algorithm will run for.
-        arm_distributions: A list of scipy.stats probability distributions bounded on [0,1]
+        T: The number of time steps the Dist_KL_UCB algorithm will run for.
+        arm_distributions: A NxM array of scipy.stats probability distributions bounded on [0,1].
+            Distributions in the same column (pertaining to same arm) must share the same mean.
         means: A list of arm means. Extracted from arm_distributions
         M: Number of arms. Extracted from length of arm_distributions
         N: Number of agents
+        sigma: An arbitrary positive hyperparameter, usually fixed at 0.01.
         regrets: A NxT numpy ndarray of expected agent regrets from the most recent algorithm run
-        neighbors: An array containing the set of all neighbors for each agent
-        num_neighbors: An array containing the size of the neighbor set for each agent.
-        W: An NxN matrix of weights to be used by the Dec_KL_UCB algorithm
+
+        Notes
+        -----
+        By default we assume the most general case of heterogeneous reward distributions, as evidenced by
+        the NxM shape of arm_distributions. While admittedly clunky, all one must do for the homogeneous reward
+        case is to pass in an NxM arm_distributions array where each row is identical.
     '''
 
-    def __init__(self, T, arm_distributions, G=None):
+    def __init__(self, T, arm_distributions, G=None, sigma=0.01):
         ''' Construct a multi-agent bandit problem instance 
         
             Parameters
             ----------
-            T: The number of time steps the Dec_KL_UCB algorithm will run for.
-            arm_distributions: A list of scipy.stats probability distributions bounded on [0,1]
+            T: The number of time steps the Dist_KL_UCB algorithm will run for.
+            arm_distributions: A NxM array of scipy.stats probability distributions bounded on [0,1].
+                Distributions in the same column (pertaining to same arm) must share the same mean.
             G (optional): An undirected NetworkX graph instance representing the network over which agents communicate.
                 It is assumed each node already has a self-loop. If no G is passed in, a randomly generated 
-                graph of size 5 is used.
+                graph of size len(arm_distributions) is used.
+                The number of nodes must match the number of rows in arm_distributions
+            sigma (optional): An arbitrary positive hyperparameter, usually fixed at 0.01.
 
             Raises
             ------
             TypeError
                 If G is not an undirected NetworkX Graph with self-loops.
             ValueError
+                If G is provided and the number of nodes does not match len(arm_distributions)
                 If T is not a positive integer.
                 If the support for any arm distribution is not in [0,1].
+                If any two distributions in the same column do not share the same mean
         '''
         if (G is None):
-            G = nx.fast_gnp_random_graph(5, 0.5, directed=False)
+            G = nx.fast_gnp_random_graph(len(arm_distributions), 0.5, directed=False)
             while not nx.is_connected(G):
-                G = nx.fast_gnp_random_graph(5, 0.5, directed=False)
+                G = nx.fast_gnp_random_graph(len(arm_distributions), 0.5, directed=False)
             nodes = list(G.nodes)
             for i in nodes:
                 G.add_edge(i,i) 
@@ -52,16 +62,24 @@ class DEC_KL_UCB:
             raise TypeError("G needs to be an undirected NetworkX Gra instance")
         if nx.number_of_selfloops(G) != nx.number_of_nodes(G):
             raise ValueError("Every node should have a self-loop")
+        if (G.number_of_nodes() != len(arm_distributions)):
+            raise ValueError('The number of nodes must match the number of rows in arm_distributions')
         if T < 1 or type(T) is not int:
             raise ValueError("T needs to be a positive integer")
-        if (any(d.support()[0] < 0 or d.support()[1] > 1 for d in arm_distributions)): 
-            raise ValueError('distribution support must lie in [0,1]')
+        arm_distributions = np.asarray(arm_distributions) # cast to numpy ndarray just in case it wasn't already
+        for row in arm_distributions:
+            if (any(d.support()[0] < 0 or d.support()[1] > 1 for d in row)): 
+                raise ValueError('distribution support must lie in [0,1]')
+        for col in arm_distributions.T:
+            if (any(d.mean() != col[0].mean() for d in col)):
+                raise ValueError('distribution means must be the same within a column')
         self.G = G
+        self.N = G.number_of_nodes()
         self.T = T
         self.arm_distributions = arm_distributions
-        self.means = [d.mean() for d in arm_distributions]
-        self.M = len(arm_distributions)
-        self.N = G.number_of_nodes()
+        self.means = [d.mean() for d in arm_distributions[0]]
+        self.M = len(arm_distributions[0])
+        self.sigma = sigma
         self.regrets = None
 
     def KL(self, p, q):
@@ -81,11 +99,11 @@ class DEC_KL_UCB:
             ''' Compute the derivative of the Bernoulli Kullback-Leibler divergence between p and q, with respect to q. '''
             return (p-q)/(q*(q - 1.0))
 
-    def Q(self, t, sigma, Ni):
-        if (t > 1): return 3*(1+sigma)*(np.log(t) + 3*np.log(np.log(t)))/(2*Ni)
+    def Q(self, t, Ni):
+        if (t > 1): return 3*(1+self.sigma)*(np.log(t) + 3*np.log(np.log(t)))/(2*Ni)
         return 0
 
-    def newton(self, n, z, Q, precision = 1e-3, max_iterations = 50, epsilon=1e-6):
+    def newton(self, n, p, Q, precision = 1e-3, max_iterations = 50, epsilon=1e-6):
         ''' Calculate upper confidence bound via newton's method 
         
             WARNING: This function works in that it efficiently finds greatest approx zero to f in (0,1).
@@ -98,7 +116,7 @@ class DEC_KL_UCB:
             ----------
             n: Number of times a certain agent i has picked a certain arm k at time t
             z: z estimate of agent i for arm k at time t
-            Q: The value of the Q function for time t and agent i
+            Q: The value of the Q method for time t and agent i
             precision: Arbitrarily small convergence threshold
             max_iterations: Limit on number of iterations Newton's method should run
             epsilon: A miscellaneous arbitrarily small limit
@@ -107,8 +125,6 @@ class DEC_KL_UCB:
             ------
             An upper confidence bound for the given parameters. Should technically be within [0,1], see warning.
         ''' 
-        p = z # from paper
-        # print(f't={t}, p={p}')
         delta = 0.1
         q0 = min(p + delta, 1-epsilon) # initial guess
         q = q0
@@ -119,9 +135,7 @@ class DEC_KL_UCB:
                 # print(f'log error: p={p}, q={q}, i={i}')
             f = self.KL(p, q) - Q/n # rearrange upper confidence bound eqn
             df = self.dKL(p, q) # derivative of f is just derivative of KL
-            
             if abs(df) < epsilon: break# check denominator is not too small
-            
             qnew = max(q0, min(q - (f / df), 1-epsilon)) # chris: my approach for keeping q in (p,1)
             # print(f'q={q}, f(q)={f}, qnew={qnew}, precision={precision} n={n}')
             if(abs(qnew - q) < precision and abs(f) < precision): # check for early convergence
@@ -133,9 +147,9 @@ class DEC_KL_UCB:
         return q
 
     def plot_regret(self):
-        ''' Plots regret of worst agent from last run vs theoretical regret bounds 
+        ''' Plots regret of best and worst agent from last run vs theoretical regret bounds 
 
-            Note: make sure DEC_KL_UCB.run() was called before calling this method
+            Note: make sure Dist_KL_UCB.run() was called before calling this method
         '''
         optimal_arm = np.argmax(self.means)
         time_axis = list(range(self.T))
@@ -145,11 +159,12 @@ class DEC_KL_UCB:
             if (i != optimal_arm): coeff += (self.means[optimal_arm] - self.means[i]) / (self.KL(self.means[i], self.means[optimal_arm]))
         theoretical_regret_bounds = [coeff * np.log(t+1) for t in time_axis] # not sure if allowed to do this bc of lim sup, seems like it works tho
         plt.plot(time_axis, theoretical_regret_bounds, '--')
+        plt.plot(time_axis, self.regrets[np.argmin(self.regrets[:, -1])])
         plt.plot(time_axis, self.regrets[np.argmax(self.regrets[:, -1])])
         plt.show()
 
     def run(self):
-        ''' Run Dec_KL_UCB on the bandit problem held by self 
+        ''' Run Dist_KL_UCB on the bandit problem held by self 
         
             Return
             ------
@@ -186,7 +201,7 @@ class DEC_KL_UCB:
         # t=0 initialization
         for agent in range(self.N):
             for arm in range(self.M):
-                val = self.arm_distributions[arm].rvs()
+                val = self.arm_distributions[agent][arm].rvs()
                 z[agent, arm, 0] = val
                 x[agent, arm, 0] = val
         # main loop
@@ -197,11 +212,11 @@ class DEC_KL_UCB:
                     if n[agent, k, t-1] <= m[agent, k, t-1] - self.M:
                         A.add(k)
                 if len(A) == 0:
-                    ucbs = [self.newton(n[agent, arm, t-1], z[agent, arm, t-1], self.Q(t-1, 0.01, num_neighbors[agent])) for arm in range(self.M)]
+                    ucbs = [self.newton(n[agent, arm, t-1], z[agent, arm, t-1], self.Q(t-1, num_neighbors[agent])) for arm in range(self.M)]
                     a = np.argmax(ucbs)
                 else:
                     a = rng.choice(tuple(A))
-                rwd = self.arm_distributions[a].rvs()
+                rwd = self.arm_distributions[agent][a].rvs()
                 # print(f'rwd={rwd}')
                 exp_cum_rwds[agent][t] = exp_cum_rwds[agent][t-1] + self.means[a]
                 # updates
@@ -220,11 +235,12 @@ class DEC_KL_UCB:
         self.regrets = regrets
         return regrets
 
-# test run
-T = 1000
-rwd_means = [.2, .3, .4, .5, .6]
-distributions = [sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))]
-dkl = DEC_KL_UCB(T, distributions)
-dkl.run()
-dkl.plot_regret()
+# # test run
+# T = 1000
+# N = 10
+# rwd_means = [.2, .3, .4, .5, .6]
+# distributions = [[sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))] for n in range(N)]
+# distkl = Dist_KL_UCB(T, distributions, sigma=0.01)
+# distkl.run()
+# distkl.plot_regret()
 
