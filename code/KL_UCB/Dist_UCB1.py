@@ -175,11 +175,11 @@ class Dist_UCB1:
         return regrets
 
 # # test run
-T = 1000
-N = 10
-rwd_means = [.2, .3, .4, .5, .6]
-distributions = [[sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))] for n in range(N)]
-distucb1 = Dist_UCB1(T, distributions, beta=0.01)
-distucb1.run()
-distucb1.plot_regret()
+# T = 1000
+# N = 10
+# rwd_means = [.2, .3, .4, .5, .6]
+# distributions = [[sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))] for n in range(N)]
+# distucb1 = Dist_UCB1(T, distributions, beta=0.01)
+# distucb1.run()
+# distucb1.plot_regret()
 
