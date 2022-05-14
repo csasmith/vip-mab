@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 import matplotlib.pyplot as plt
-
+import math
 
 class KL_UCB:
     ''' Representation of a single agent bandit problem and a method to run the KL_UCB algorithm on this problem
@@ -45,10 +45,14 @@ class KL_UCB:
             Note that we can use this even when arm distributions are not Bernoulli. In this case,
             p and q are the means of their respective distributions.
         '''
-        if (p == 0 and q == 0) or (p == 1 and q == 1) or p == 0:
+        if (math.isclose(p, 0) and math.isclose(q, 0)) or (math.isclose(p, 1) and math.isclose(q, 1)) or (p >= 1 and q >= 1):
             return 0
-        elif q == 0 or q == 1:
+        elif math.isclose(q, 0) or math.isclose(q, 1) or q <= 0 or q >= 1:
             return np.inf
+        elif math.isclose(p, 0) or p <= 0:
+            return np.inf
+        elif p >= 1:
+            return 0
         else:
             return p*np.log(p/q) + (1-p)*np.log((1-p)/(1-q))
 
@@ -84,10 +88,10 @@ class KL_UCB:
         delta = 0.1 # arbitrary small positive offset
         q = p + delta # initial guess. if p==q, then dKL=0 and we never move anywhere
         converged = False
-        
+
         for n in range(max_iterations):
-            if (p / q <= 0 or (1-p)/(1-q) <= 0): # sanity check for log domain errors
-                print(f'log error: p={p}, q={q}, n={n}')
+            #if (p / q <= 0 or (1-p)/(1-q) <= 0): # sanity check for log domain errors
+            #    print(f'log error: p={p}, q={q}, n={n}')
             # wish to find greatest val of q in (0,1) that gets f closest to zero from below
             f = self.KL(p, q) - np.log(t)/N[k]
             df = self.dKL(p, q) # derivative of f is just derivative of KL

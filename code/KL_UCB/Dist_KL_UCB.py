@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 import networkx as nx
+import math
 rng = np.random.default_rng(1)
 import matplotlib.pyplot as plt
 
@@ -88,10 +89,14 @@ class Dist_KL_UCB:
                 Note that we can use this even when arm distributions are not Bernoulli. In this case,
                 p and q are the means of their respective distributions.
             '''
-            if (p == 0 and q == 0) or (p == 1 and q == 1) or p == 0:
+            if (math.isclose(p, 0) and math.isclose(q, 0)) or (math.isclose(p, 1) and math.isclose(q, 1)) or (p >= 1 and q >= 1):
                 return 0
-            elif q == 0 or q == 1:
+            elif math.isclose(q, 0) or math.isclose(q, 1) or q <= 0 or q >= 1:
                 return np.inf
+            elif math.isclose(p, 0) or p <= 0:
+                return np.inf
+            elif p >= 1:
+                return 0
             else:
                 return p*np.log(p/q) + (1-p)*np.log((1-p)/(1-q))
 
