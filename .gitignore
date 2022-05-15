@@ -3,3 +3,4 @@
 .ipynb_checkpoints
 .scratchdir
 __pycache__
+.out

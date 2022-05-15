@@ -91,13 +91,13 @@ class UCB1:
         return regret
 
 
-# test run
-T = 100000
-rwd_means = [.2, .3, .4, .5, .6]
-sd = 0.5
-distributions = [sps.truncnorm(a=(0 - rwd_means[i]) / sd, b=(1 - rwd_means[i]) / sd, loc=rwd_means[i], scale=0.2) for i in range(len(rwd_means))]
-kl = UCB1(T, distributions)
-kl.run()
-kl.plot_regret()
+# # test run
+# T = 100000
+# rwd_means = [.2, .3, .4, .5, .6]
+# sd = 0.5
+# distributions = [sps.truncnorm(a=(0 - rwd_means[i]) / sd, b=(1 - rwd_means[i]) / sd, loc=rwd_means[i], scale=0.2) for i in range(len(rwd_means))]
+# kl = UCB1(T, distributions)
+# kl.run()
+# kl.plot_regret()
 
 
