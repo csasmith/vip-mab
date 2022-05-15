@@ -1,3 +1,5 @@
 .DS_Store
 .vscode
 .ipynb_checkpoints
+.scratchdir
+__pycache__
