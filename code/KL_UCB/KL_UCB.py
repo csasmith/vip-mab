@@ -60,7 +60,7 @@ class KL_UCB:
         ''' Compute the derivative of the Bernoulli Kullback-Leibler divergence between p and q, with respect to q. '''
         return (p-q)/(q*(q - 1.0))
 
-    def newton(self, N, S, k, t, precision = 1e-3, max_iterations = 100, epsilon=1e-6):
+    def newton(self, N, S, k, t, precision = 1e-3, max_iterations=20, epsilon=1e-6):
         ''' Calculate upper confidence bound via newton's method 
         
             WARNING: This function works in that it efficiently finds greatest approx zero to f in (0,1).

@@ -108,7 +108,7 @@ class Dist_KL_UCB:
         if (t > 1): return 3*(1+self.sigma)*(np.log(t) + 3*np.log(np.log(t)))/(2*Ni)
         return 0
 
-    def newton(self, n, p, Q, precision = 1e-3, max_iterations = 50, epsilon=1e-6):
+    def newton(self, n, p, Q, precision=1e-3, max_iterations=20, epsilon=1e-6):
         ''' Calculate upper confidence bound via newton's method 
         
             WARNING: This function works in that it efficiently finds greatest approx zero to f in (0,1).

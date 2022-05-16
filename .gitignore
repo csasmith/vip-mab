@@ -4,3 +4,4 @@
 .scratchdir
 __pycache__
 .out
+.png
