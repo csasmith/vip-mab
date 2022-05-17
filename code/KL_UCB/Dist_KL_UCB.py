@@ -105,7 +105,7 @@ class Dist_KL_UCB:
             return (p-q)/(q*(q - 1.0))
 
     def Q(self, t, Ni):
-        if (t > 1): return 3*(1+self.sigma)*(np.log(t) + 3*np.log(np.log(t)))/(2*Ni)
+        if (t > 1): return 3*(1+self.sigma)*(np.log(t+1) + 3*np.log(np.log(t+1)))/(2*Ni)
         return 0
 
     def newton(self, n, p, Q, precision=1e-3, max_iterations=20, epsilon=1e-6):

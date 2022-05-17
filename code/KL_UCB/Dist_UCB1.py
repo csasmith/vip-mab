@@ -83,7 +83,7 @@ class Dist_UCB1:
         self.regrets = None
 
     def C(self, t, beta, n, Ni):
-        return (1 + beta)*np.sqrt((3*np.log(t))/(Ni*n))
+        return (1 + beta)*np.sqrt((3*np.log(t+1))/(Ni*n))
 
     def plot_regret(self):
         ''' Plots regret of best and worst agent from last run vs theoretical regret bounds 

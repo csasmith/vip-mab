@@ -93,7 +93,7 @@ class KL_UCB:
             #if (p / q <= 0 or (1-p)/(1-q) <= 0): # sanity check for log domain errors
             #    print(f'log error: p={p}, q={q}, n={n}')
             # wish to find greatest val of q in (0,1) that gets f closest to zero from below
-            f = self.KL(p, q) - np.log(t)/N[k]
+            f = self.KL(p, q) - np.log(t+1)/N[k]
             df = self.dKL(p, q) # derivative of f is just derivative of KL
             if abs(df) < epsilon: # check denominator not too small
                 break 

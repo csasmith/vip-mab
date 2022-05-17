@@ -41,7 +41,7 @@ class UCB1:
 
     def C(self, n, t):
         ''' Calculate confidence width at time t for an arm pulled n times so far '''
-        return np.sqrt((2 * np.log(t)) / n)
+        return np.sqrt((2 * np.log(t+1)) / n)
 
     def plot_regret(self):
         ''' Plots regret of last run vs theoretical regret bounds 
