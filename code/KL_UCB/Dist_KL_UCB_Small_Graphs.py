@@ -28,7 +28,7 @@ class Dist_KL_UCB:
         case is to pass in an NxM arm_distributions array where each row is identical.
     '''
 
-    def __init__(self, T, arm_distributions, G, sigma):
+    def __init__(self, T, arm_distributions, G=None, sigma=0.01):
         ''' Construct a multi-agent bandit problem instance 
         
             Parameters
@@ -155,18 +155,11 @@ class Dist_KL_UCB:
         return q
 
     def plot_regret(self):
-        ''' Plots regret of best and worst agent from last run vs theoretical regret bounds 
+        ''' Plots regret of best and worst agent from last run
 
             Note: make sure Dist_KL_UCB.run() was called before calling this method
         '''
-        optimal_arm = np.argmax(self.means)
         time_axis = list(range(self.T))
-        # TODO: these are single agent theoretical regret bounds. Change to bounds in new paper
-        coeff = 0
-        for i in range(self.M):
-            if (i != optimal_arm): coeff += (self.means[optimal_arm] - self.means[i]) / (self.KL(self.means[i], self.means[optimal_arm]))
-        theoretical_regret_bounds = [coeff * np.log(t+1) for t in time_axis] # not sure if allowed to do this bc of lim sup, seems like it works tho
-        plt.plot(time_axis, theoretical_regret_bounds, '--')
         plt.plot(time_axis, self.regrets[np.argmin(self.regrets[:, -1])])
         plt.plot(time_axis, self.regrets[np.argmax(self.regrets[:, -1])])
         plt.show()
@@ -244,11 +237,11 @@ class Dist_KL_UCB:
         return regrets
 
 # # test run
-# T = 1000
-# N = 10
-# rwd_means = [.2, .3, .4, .5, .6]
-# distributions = [[sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))] for n in range(N)]
-# distkl = Dist_KL_UCB(T, distributions, sigma=0.01)
-# distkl.run()
-# distkl.plot_regret()
+#T = 1000
+#N = 10
+#rwd_means = [.2, .3, .4, .5, .6]
+#distributions = [[sps.uniform(loc=rwd_means[i] - .1, scale=0.2) for i in range(len(rwd_means))] for n in range(N)]
+#distkl = Dist_KL_UCB(T, distributions, sigma=0.01)
+#distkl.run()
+#distkl.plot_regret()
 

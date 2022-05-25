@@ -26,6 +26,10 @@ NOTE: All Jupyter Notebook files use multiprocessing to run multiple trials simu
 
 `Dist_KL_UCB_Small_Graphs.py` and `Dist_UCB1_Small_Graphs.py` contain the implementations for the Distributed KL-UCB and Distributed UCB1 algorithms for the supplemental simulations
 
+Each of these files has commented test run lines that can be used to test the implementations by uncommenting them and typing `python filename.py` in the terminal, replacing `filename.py` with the name of the file. Running the files will output a plot of the regrets of the best and worst performing agents.
+
+Jupyter Notebook can be used to run the following:
+
 `Dist_vs_Single_KL_UCB.ipynb` can be ran to obtain Figure 1.
 
 `Dist_vs_Single_UCB1.ipynb` can be ran to obtain Figure 2.
